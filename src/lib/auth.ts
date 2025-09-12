@@ -22,7 +22,7 @@ interface SigninPayload {
   role: string
 }
 
-const API_BASE_URL = 'http://localhost:8080/api/v1'
+const API_BASE_URL = 'http://13.235.31.25/api/v1'
 
 export class AuthService {
   private static getToken(): string | null {
