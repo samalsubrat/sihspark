@@ -17,10 +17,10 @@ export default function DashboardPage() {
           <Charts />
 
           {/* Alerts and Activity */}
-          <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+          {/* <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
             <AlertList />
             <RecentActivity />
-          </div>
+          </div> */}
         </div>
       </div>
     </div>
