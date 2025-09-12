@@ -51,7 +51,7 @@ interface WaterTestPayload {
   }
 }
 
-const BACKEND_API_URL = 'http://sihspark.onrender.com/api/v1'
+const BACKEND_API_URL = 'https://sihspark.onrender.com/api/v1'
 
 // Helper function to forward auth headers
 function getAuthHeaders(request: NextRequest) {

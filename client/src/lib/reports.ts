@@ -52,7 +52,7 @@ interface DeleteReportResponse {
   deleted: boolean
 }
 
-const API_BASE_URL = 'http://sihspark.onrender.com/api/v1'
+const API_BASE_URL = 'https://sihspark.onrender.com/api/v1'
 
 export class ReportsService {
   private static getToken(): string | null {
