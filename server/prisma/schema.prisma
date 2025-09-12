@@ -18,6 +18,7 @@ model User {
   name          String?
   email         String        @unique
   password      String
+  location      String?
   role          Role          @default(public)
   createdAt     DateTime      @default(now())
   leaderReports Report[]
