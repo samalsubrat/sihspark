@@ -98,7 +98,7 @@ interface DeleteResponse {
   deleted: boolean
 }
 
-const API_BASE_URL = 'http://sparkbackend-vsjv.onrender.com/api/v1'
+const API_BASE_URL = 'http://sihspark.onrender.com/api/v1'
 
 export class GamifiedService {
   private static getToken(): string | null {
