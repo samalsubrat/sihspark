@@ -1,0 +1,47 @@
+{
+  "name": "spark",
+  "version": "1.0.0",
+  "description": "Authentication API with Node.js and Express",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "nodemon index.js",
+    "prisma:generate": "prisma generate",
+    "prisma:push": "prisma db push",
+    "prisma:studio": "prisma studio",
+    "seed": "node ./scripts/seed.js",
+    "test": "node test-auth.js",
+    "test:auth": "node test-auth.js"
+  },
+  "dependencies": {
+    "@neondatabase/serverless": "^0.7.2",
+    "@prisma/client": "^6.16.0",
+    "bcrypt": "^5.1.1",
+    "cors": "^2.8.5",
+    "dotenv": "^16.3.1",
+    "express": "^4.18.2",
+    "jsonwebtoken": "^9.0.2",
+    "node-fetch": "^3.3.2"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/samalsubrat/spark.git"
+  },
+  "keywords": [
+    "authentication",
+    "api",
+    "nodejs",
+    "express"
+  ],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/samalsubrat/spark/issues"
+  },
+  "homepage": "https://github.com/samalsubrat/spark#readme",
+  "devDependencies": {
+    "nodemon": "^3.1.10",
+    "prisma": "^6.16.0"
+  }
+}
