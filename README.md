@@ -219,7 +219,7 @@ If you have any questions or need help:
 
 <div align="center">
 
-**Built with ❤️ for Smart India Hackathon 2024**
+**Built with ❤️ for SOA Ideathon 2025**
 
 Made by [Team Name] | [University Name]
 
