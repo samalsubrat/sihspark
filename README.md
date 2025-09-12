@@ -207,14 +207,6 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - **Vercel** for hosting and deployment
 - **Neon** for the database infrastructure
 
-## 📞 Support
-
-If you have any questions or need help:
-
-- 📧 **Email**: [your-email@domain.com]
-- 💬 **Discord**: [Your Discord Server]
-- 🐛 **Issues**: [GitHub Issues](https://github.com/samalsubrat/sihspark/issues)
-
 ---
 
 <div align="center">
