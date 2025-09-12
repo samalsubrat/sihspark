@@ -221,6 +221,6 @@ If you have any questions or need help:
 
 **Built with ❤️ for SOA Ideathon 2025**
 
-Made by [Team Name] | [University Name]
+Made by [SPARK] | [Siksha O Anusandhan]
 
 </div>
