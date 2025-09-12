@@ -11,7 +11,7 @@ const dmSans = DM_Sans({
 
 export const metadata: Metadata = {
   title: "SIH Spark",
-  description: "SOA Ideathon 2025",
+  description: "Smart India Hackathon Project",
 };
 
 export default function RootLayout({

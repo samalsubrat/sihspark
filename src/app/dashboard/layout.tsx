@@ -1,7 +1,7 @@
 import type React from "react"
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar"
-import { AppSidebar } from "@/components/AppSidebar"
-// import ProtectedRoute from "@/components/protected-route"
+import { AppSidebar } from "@/components/app-sidebar"
+import ProtectedRoute from "@/components/protected-route"
 
 export default function DashboardLayout({
   children,
@@ -9,7 +9,7 @@ export default function DashboardLayout({
   children: React.ReactNode
 }) {
   return (
-    // <ProtectedRoute allowedRoles={['asha', 'leader', 'admin']}>
+    <ProtectedRoute allowedRoles={['asha', 'leader', 'admin']}>
       <SidebarProvider defaultOpen={true}>
         <AppSidebar />
         <main className="flex-1 min-h-screen bg-[#f7f9fb] overflow-auto">
@@ -19,6 +19,6 @@ export default function DashboardLayout({
           {children}
         </main>
       </SidebarProvider>
-    // </ProtectedRoute>
+    </ProtectedRoute>
   )
 }
