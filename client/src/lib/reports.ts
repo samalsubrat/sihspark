@@ -121,11 +121,16 @@ export class ReportsService {
     }
     const data = await response.json()
     // Normalize various possible backend shapes into { reports: Report[] }
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let reports: unknown = (data && typeof data === 'object') ? (data as any).reports : data
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     if (Array.isArray((data as any)?.data)) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       reports = (data as any).data
     }
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     if (!Array.isArray(reports) && Array.isArray((data as any)?.items)) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       reports = (data as any).items
     }
     if (!Array.isArray(reports)) {

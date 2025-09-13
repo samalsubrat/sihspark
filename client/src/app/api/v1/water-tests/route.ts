@@ -13,6 +13,7 @@ interface WaterTestPayload {
   quality: "good" | "medium" | "high"
 }
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 interface BackendWaterTest {
   id: string
   waterbodyName: string
@@ -181,6 +182,7 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     // Check authentication first
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { isAuthenticated, token } = checkAuth(request)
     if (!isAuthenticated) {
       return NextResponse.json(

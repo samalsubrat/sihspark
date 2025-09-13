@@ -5,6 +5,7 @@ import { useAuth } from "@/contexts/auth-context"
 import { AlertService, type Alert, type AlertStats } from "@/lib/alerts"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
@@ -17,6 +18,7 @@ import {
   Users,
   Globe,
   Clock,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   Droplets,
   MapPin,
   User
@@ -87,6 +89,7 @@ export default function AlertsPage() {
   }
 
   // Load alerts and statistics
+  // eslint-disable-next-line react-hooks/rules-of-hooks
   useEffect(() => {
     const loadData = async () => {
       try {

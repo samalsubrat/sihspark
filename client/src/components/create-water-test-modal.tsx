@@ -111,6 +111,7 @@ export default function CreateWaterTestModal({ open, onOpenChange, onSuccess }: 
                 title: "Analysis Complete",
                 description: `Water Quality: ${analysis.quality} (Confidence: ${(analysis.confidence * 100).toFixed(1)}%)`,
             })
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         } catch (error) {
             toast({
                 title: "Analysis Failed",

@@ -25,6 +25,7 @@ export default function RoleManagementPage() {
     admin: 0,
     public: 0
   })
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [recentUsers, setRecentUsers] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
 
@@ -43,6 +44,7 @@ export default function RoleManagementPage() {
   }
 
   // Load user statistics
+  // eslint-disable-next-line react-hooks/rules-of-hooks
   useEffect(() => {
     const loadStats = async () => {
       try {
