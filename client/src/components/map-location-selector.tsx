@@ -58,14 +58,7 @@ export default function MapLocationSelector({
     }
   }, [open])
 
-  // Initialize map when loaded
-  useEffect(() => {
-    if (mapLoaded && open && mapRef.current && !mapInstanceRef.current) {
-      initializeMap()
-    }
-  }, [mapLoaded, open])
-
-  const initializeMap = () => {
+  const initializeMap = useCallback(() => {
     if (!mapRef.current || !window.google) return
 
     const map = new window.google.maps.Map(mapRef.current, {
@@ -107,7 +100,14 @@ export default function MapLocationSelector({
 
     mapInstanceRef.current = map
     markerRef.current = marker
-  }
+  }, [selectedLat, selectedLng])
+
+  // Initialize map when loaded
+  useEffect(() => {
+    if (mapLoaded && open && mapRef.current && !mapInstanceRef.current) {
+      initializeMap()
+    }
+  }, [mapLoaded, open, initializeMap])
 
   // Update marker position when coordinates change
   useEffect(() => {

@@ -97,7 +97,7 @@ export default function AlertsPage() {
         setError(null)
         
         const [alertsResponse, statsResponse] = await Promise.all([
-          AlertService.getAllAlerts(100),
+          AlertService.getLeaderAlerts(100),
           AlertService.getAlertStats()
         ])
         
@@ -107,58 +107,13 @@ export default function AlertsPage() {
         const errorMessage = err instanceof Error ? err.message : 'Failed to load alerts'
         setError(errorMessage)
         console.error('Error loading alerts:', err)
-        
-        // Set demo data for development
-        setAlerts([
-          {
-            id: '1',
-            message: '⚠️ Medium Water Quality at Lake Victoria',
-            type: 'leader',
-            createdAt: new Date().toISOString(),
-            waterTest: {
-              id: 'wt1',
-              waterbodyName: 'Lake Victoria',
-              location: 'Kampala, Uganda',
-              quality: 'medium',
-              dateTime: new Date().toISOString(),
-              asha: {
-                id: 'asha1',
-                name: 'Sarah Johnson',
-                email: 'sarah@example.com'
-              }
-            },
-            leader: {
-              id: 'leader1',
-              name: 'John Doe',
-              email: 'john@example.com'
-            }
-          },
-          {
-            id: '2',
-            message: '🚨 High Risk Water Quality detected at River Nile',
-            type: 'global',
-            createdAt: new Date(Date.now() - 3600000).toISOString(),
-            waterTest: {
-              id: 'wt2',
-              waterbodyName: 'River Nile',
-              location: 'Cairo, Egypt',
-              quality: 'high',
-              dateTime: new Date(Date.now() - 3600000).toISOString(),
-              asha: {
-                id: 'asha2',
-                name: 'Ahmed Hassan',
-                email: 'ahmed@example.com'
-              }
-            }
-          }
-        ])
+        setAlerts([])
         setStats({
-          totalLeaderAlerts: 1,
-          totalGlobalAlerts: 1,
-          totalAlerts: 2,
-          recentAlerts: 2
+          totalLeaderAlerts: 0,
+          totalGlobalAlerts: 0,
+          totalAlerts: 0,
+          recentAlerts: 0
         })
-        setError(`Backend not available (${errorMessage}). Showing demo data.`)
       } finally {
         setLoading(false)
       }
@@ -178,13 +133,14 @@ export default function AlertsPage() {
     return matchesSearch && matchesType
   })
 
+
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="container mx-auto px-4 py-8">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Water Quality Alerts</h1>
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">Leader Alerts</h1>
           <p className="text-gray-600">
-            Monitor water quality alerts and notifications from ASHA workers
+            Monitor water quality alerts and notifications for leaders
           </p>
           <div className="mt-2 text-sm text-blue-600">
             Logged in as: <span className="font-medium">{user.email}</span> ({user.role})
@@ -276,7 +232,7 @@ export default function AlertsPage() {
         {/* Alerts Table */}
         <Card className="bg-white border-0 shadow-sm">
           <CardHeader>
-            <CardTitle className="text-lg font-semibold text-gray-900">Recent Alerts</CardTitle>
+            <CardTitle className="text-lg font-semibold text-gray-900">Leader Alerts</CardTitle>
             {error && (
               <div className={`text-sm p-3 rounded-lg border ${
                 error.includes('Backend not available') 
@@ -308,7 +264,7 @@ export default function AlertsPage() {
                   {filteredAlerts.length === 0 ? (
                     <TableRow>
                       <TableCell colSpan={5} className="text-center py-8 text-gray-500">
-                        No alerts found
+                        {alerts.length === 0 ? "No alerts found" : `No alerts match your filters (${alerts.length} total alerts)`}
                       </TableCell>
                     </TableRow>
                   ) : (
@@ -316,43 +272,43 @@ export default function AlertsPage() {
                       <TableRow key={alert.id}>
                         <TableCell>
                           <div>
-                            <div className="font-medium text-gray-900 mb-1">{alert.message}</div>
+                            <div className="font-medium text-gray-900 mb-1">{alert.message || 'No message'}</div>
                             <div className="text-sm text-gray-500 flex items-center gap-1">
                               <MapPin className="h-3 w-3" />
-                              {alert.waterTest.location}
+                              {alert.waterTest?.location || 'Unknown location'}
                             </div>
                             {alert.leader && (
                               <div className="text-xs text-gray-400 mt-1">
-                                Leader: {alert.leader.name}
+                                Leader: {alert.leader.name || 'Unknown leader'}
                               </div>
                             )}
                           </div>
                         </TableCell>
                         <TableCell>
                           <div>
-                            <div className="font-medium text-gray-900">{alert.waterTest.waterbodyName}</div>
+                            <div className="font-medium text-gray-900">{alert.waterTest?.waterbodyName || 'Unknown waterbody'}</div>
                             <div className="text-sm text-gray-500 flex items-center gap-1">
                               <User className="h-3 w-3" />
-                              {alert.waterTest.asha.name}
+                              {alert.waterTest?.asha?.name || 'Unknown ASHA'}
                             </div>
                           </div>
                         </TableCell>
                         <TableCell>
-                          <Badge className={getQualityBadgeColor(alert.waterTest.quality)}>
-                            {formatQuality(alert.waterTest.quality)}
+                          <Badge className={getQualityBadgeColor(alert.waterTest?.quality || 'unknown')}>
+                            {formatQuality(alert.waterTest?.quality || 'unknown')}
                           </Badge>
                         </TableCell>
                         <TableCell>
-                          <Badge className={getAlertTypeBadgeColor(alert.type)}>
+                          <Badge className={getAlertTypeBadgeColor(alert.type || 'unknown')}>
                             {alert.type === 'leader' ? 'Leader Alert' : 'Global Alert'}
                           </Badge>
                         </TableCell>
                         <TableCell>
                           <div className="text-sm text-gray-600">
-                            {new Date(alert.createdAt).toLocaleDateString()}
+                            {alert.createdAt ? new Date(alert.createdAt).toLocaleDateString() : 'Unknown date'}
                           </div>
                           <div className="text-xs text-gray-400">
-                            {new Date(alert.createdAt).toLocaleTimeString()}
+                            {alert.createdAt ? new Date(alert.createdAt).toLocaleTimeString() : 'Unknown time'}
                           </div>
                         </TableCell>
                       </TableRow>

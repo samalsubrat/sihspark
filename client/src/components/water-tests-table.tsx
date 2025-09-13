@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { Search, Calendar, Droplets, Plus, ChevronDown, ChevronRight, Loader2 } from "lucide-react"
+import { Search, Droplets, Plus, ChevronDown, ChevronRight, Loader2 } from "lucide-react"
 import CreateWaterTestModal from "./create-water-test-modal"
 import { WaterTestsService } from "@/lib/water-tests"
 
@@ -23,84 +23,54 @@ const formatDate = (dateString: string): string => {
 
 interface WaterTest {
   id: string
-  waterbody_name: string
-  test_type: "Surveillance" | "Routine" | "Emergency"
-  priority: "Low" | "Medium" | "High"
-  conducted_by: string
-  chloramines: number
-  conductivity: number
-  hardness: number
-  organic_carbon: number
-  solids: number
-  sulfate: number
-  trihalomethanes: number
-  turbidity: number
-  ph: number
-  predicted_class: number
-  risk_probabilities: {
-    "0": number
-    "1": number
-    "2": number
-  }
-  status: "Pending" | "Completed"
-  created_at: string
+  waterbodyName: string
+  waterbodyId?: string
+  dateTime: string
+  location: string
+  latitude?: number
+  longitude?: number
+  photoUrl: string
+  notes: string
+  quality: "good" | "medium" | "high" | "disease"
+  ashaId: string
+  createdAt: string
 }
 
-function getStatusColor(status: WaterTest["status"]) {
-  switch (status) {
-    case "Pending":
-      return "bg-yellow-100 text-yellow-800 border-yellow-200"
-    case "Completed":
+function getQualityColor(quality: WaterTest["quality"]) {
+  switch (quality) {
+    case "good":
       return "bg-green-100 text-green-800 border-green-200"
-    default:
-      return "bg-gray-100 text-gray-800 border-gray-200"
-  }
-}
-
-function getPriorityColor(priority: WaterTest["priority"]) {
-  switch (priority) {
-    case "High":
+    case "medium":
+      return "bg-yellow-100 text-yellow-800 border-yellow-200"
+    case "high":
       return "bg-red-100 text-red-800 border-red-200"
-    case "Medium":
-      return "bg-orange-100 text-orange-800 border-orange-200"
-    case "Low":
-      return "bg-blue-100 text-blue-800 border-blue-200"
-    default:
-      return "bg-gray-100 text-gray-800 border-gray-200"
-  }
-}
-
-function getTestTypeColor(testType: WaterTest["test_type"]) {
-  switch (testType) {
-    case "Emergency":
+    case "disease":
       return "bg-red-100 text-red-800 border-red-200"
-    case "Surveillance":
-      return "bg-purple-100 text-purple-800 border-purple-200"
-    case "Routine":
-      return "bg-blue-100 text-blue-800 border-blue-200"
     default:
       return "bg-gray-100 text-gray-800 border-gray-200"
   }
 }
 
-function getRiskLevel(predicted_class: number): { label: string; color: string } {
-  switch (predicted_class) {
-    case 0:
-      return { label: "Safe", color: "bg-green-100 text-green-800 border-green-200" }
-    case 1:
-      return { label: "Moderate Risk", color: "bg-yellow-100 text-yellow-800 border-yellow-200" }
-    case 2:
-      return { label: "High Risk", color: "bg-red-100 text-red-800 border-red-200" }
+function getQualityLabel(quality: WaterTest["quality"]) {
+  switch (quality) {
+    case "good":
+      return "Good"
+    case "medium":
+      return "Medium"
+    case "high":
+      return "High Risk"
+    case "disease":
+      return "Disease Risk"
     default:
-      return { label: "Unknown", color: "bg-gray-100 text-gray-800 border-gray-200" }
+      return "Unknown"
   }
 }
+
+
 
 export function WaterTestsTable() {
   const [searchTerm, setSearchTerm] = useState("")
-  const [statusFilter, setStatusFilter] = useState<string>("all")
-  const [priorityFilter, setPriorityFilter] = useState<string>("all")
-  const [testTypeFilter, setTestTypeFilter] = useState<string>("all")
+  const [qualityFilter, setQualityFilter] = useState<string>("all")
   const [waterTests, setWaterTests] = useState<WaterTest[]>([])
   const [loading, setLoading] = useState(true)
   const [expandedRows, setExpandedRows] = useState<Set<string>>(new Set())
@@ -133,14 +103,12 @@ export function WaterTestsTable() {
   const filteredTests = Array.isArray(waterTests) ? waterTests.filter((test) => {
     const matchesSearch =
       (test.id ? String(test.id).toLowerCase().includes(searchTerm.toLowerCase()) : false) ||
-      (test.waterbody_name ? test.waterbody_name.toLowerCase().includes(searchTerm.toLowerCase()) : false) ||
-      (test.conducted_by ? test.conducted_by.toLowerCase().includes(searchTerm.toLowerCase()) : false)
+      (test.waterbodyName ? test.waterbodyName.toLowerCase().includes(searchTerm.toLowerCase()) : false) ||
+      (test.location ? test.location.toLowerCase().includes(searchTerm.toLowerCase()) : false)
 
-    const matchesStatus = statusFilter === "all" || test.status === statusFilter
-    const matchesPriority = priorityFilter === "all" || test.priority === priorityFilter
-    const matchesTestType = testTypeFilter === "all" || test.test_type === testTypeFilter
+    const matchesQuality = qualityFilter === "all" || test.quality === qualityFilter
 
-    return matchesSearch && matchesStatus && matchesPriority && matchesTestType
+    return matchesSearch && matchesQuality
   }) : []
 
   const toggleRowExpansion = (testId: string) => {
@@ -177,43 +145,23 @@ export function WaterTestsTable() {
             <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
               <Input
-                placeholder="Search by ID, waterbody, or technician..."
+                placeholder="Search by ID, waterbody, or location..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="pl-10"
               />
             </div>
             <div className="flex gap-2">
-              <Select value={testTypeFilter} onValueChange={setTestTypeFilter}>
+              <Select value={qualityFilter} onValueChange={setQualityFilter}>
                 <SelectTrigger className="w-[140px]">
-                  <SelectValue placeholder="Test Type" />
+                  <SelectValue placeholder="Quality" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">All Types</SelectItem>
-                  <SelectItem value="Emergency">Emergency</SelectItem>
-                  <SelectItem value="Surveillance">Surveillance</SelectItem>
-                  <SelectItem value="Routine">Routine</SelectItem>
-                </SelectContent>
-              </Select>
-              <Select value={statusFilter} onValueChange={setStatusFilter}>
-                <SelectTrigger className="w-[120px]">
-                  <SelectValue placeholder="Status" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Status</SelectItem>
-                  <SelectItem value="Pending">Pending</SelectItem>
-                  <SelectItem value="Completed">Completed</SelectItem>
-                </SelectContent>
-              </Select>
-              <Select value={priorityFilter} onValueChange={setPriorityFilter}>
-                <SelectTrigger className="w-[120px]">
-                  <SelectValue placeholder="Priority" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Priority</SelectItem>
-                  <SelectItem value="High">High</SelectItem>
-                  <SelectItem value="Medium">Medium</SelectItem>
-                  <SelectItem value="Low">Low</SelectItem>
+                  <SelectItem value="all">All Quality</SelectItem>
+                  <SelectItem value="good">Good</SelectItem>
+                  <SelectItem value="medium">Medium</SelectItem>
+                  <SelectItem value="high">High Risk</SelectItem>
+                  <SelectItem value="disease">Disease Risk</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -234,20 +182,16 @@ export function WaterTestsTable() {
                     <TableHead className="w-[50px]"></TableHead>
                     <TableHead>Test ID</TableHead>
                     <TableHead>Waterbody</TableHead>
-                    <TableHead>Type</TableHead>
-                    <TableHead>Priority</TableHead>
-                    <TableHead>Risk Level</TableHead>
-                    <TableHead>pH</TableHead>
-                    <TableHead>Turbidity</TableHead>
-                    <TableHead>Status</TableHead>
+                    <TableHead>Location</TableHead>
+                    <TableHead>Quality</TableHead>
                     <TableHead>Date</TableHead>
-                    <TableHead>Conducted By</TableHead>
+                    <TableHead>Notes</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {filteredTests.length === 0 ? (
                     <TableRow>
-                      <TableCell colSpan={11} className="text-center py-8 text-muted-foreground">
+                      <TableCell colSpan={7} className="text-center py-8 text-muted-foreground">
                         {waterTests.length === 0 ? "No water tests found. Create your first test!" : "No tests match your search criteria."}
                       </TableCell>
                     </TableRow>
@@ -265,109 +209,73 @@ export function WaterTestsTable() {
                           <TableCell className="font-medium">{test.id}</TableCell>
                           <TableCell>
                             <div className="flex flex-col">
-                              <span className="font-medium text-gray-900 truncate">{test.waterbody_name}</span>
+                              <span className="font-medium text-gray-900 truncate">{test.waterbodyName}</span>
                             </div>
                           </TableCell>
                           <TableCell>
-                            <Badge className={getTestTypeColor(test.test_type)}>{test.test_type}</Badge>
+                            <div className="text-sm text-gray-600 truncate">{test.location}</div>
                           </TableCell>
                           <TableCell>
-                            <Badge className={getPriorityColor(test.priority)}>{test.priority}</Badge>
-                          </TableCell>
-                          <TableCell>
-                            {test.status === "Completed" ? (
-                              <Badge className={getRiskLevel(test.predicted_class).color}>
-                                {getRiskLevel(test.predicted_class).label}
-                              </Badge>
-                            ) : (
-                              <span className="text-muted-foreground">-</span>
-                            )}
+                            <Badge className={getQualityColor(test.quality)}>
+                              {getQualityLabel(test.quality)}
+                            </Badge>
                           </TableCell>
                           <TableCell>
                             <div className="text-sm">
-                              {test.status === "Pending" ? "-" : (test.ph && typeof test.ph === 'number' ? test.ph.toFixed(1) : (test.ph ? Number(test.ph).toFixed(1) : "-"))}
+                              {formatDate(test.dateTime)}
                             </div>
                           </TableCell>
                           <TableCell>
-                            <div className="text-sm">
-                              {test.status === "Pending" ? "-" : (test.turbidity && typeof test.turbidity === 'number' ? test.turbidity.toFixed(1) : (test.turbidity ? Number(test.turbidity).toFixed(1) : "-"))}
+                            <div className="text-sm text-gray-600 truncate max-w-[200px]">
+                              {test.notes}
                             </div>
-                          </TableCell>
-                          <TableCell>
-                            <Badge className={getStatusColor(test.status)}>{test.status}</Badge>
-                          </TableCell>
-                          <TableCell>
-                            <div className="flex items-center gap-2">
-                              <Calendar className="h-4 w-4 text-gray-400" />
-                              <span className="whitespace-nowrap">{formatDate(test.created_at)}</span>
-                            </div>
-                          </TableCell>
-                          <TableCell>
-                            <div className="text-sm text-gray-900 truncate">{test.conducted_by}</div>
                           </TableCell>
                         </TableRow>
                         {/* Expanded Row Details */}
-                        {expandedRows.has(test.id) && test.status === "Completed" && (
+                        {expandedRows.has(test.id) && (
                           <TableRow>
-                            <TableCell colSpan={11} className="bg-muted/25">
+                            <TableCell colSpan={7} className="bg-muted/25">
                               <div className="p-4">
-                                <h4 className="font-semibold mb-3">Detailed Analysis Results</h4>
-                                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                                  <div className="space-y-1">
-                                    <p className="text-sm font-medium text-gray-600">Chloramines</p>
-                                    <p className="text-sm">{test.chloramines && typeof test.chloramines === 'number' ? test.chloramines.toFixed(3) : (test.chloramines ? Number(test.chloramines).toFixed(3) : "-")} mg/L</p>
-                                  </div>
-                                  <div className="space-y-1">
-                                    <p className="text-sm font-medium text-gray-600">Conductivity</p>
-                                    <p className="text-sm">{test.conductivity && typeof test.conductivity === 'number' ? test.conductivity.toFixed(1) : (test.conductivity ? Number(test.conductivity).toFixed(1) : "-")} μS/cm</p>
-                                  </div>
-                                  <div className="space-y-1">
-                                    <p className="text-sm font-medium text-gray-600">Hardness</p>
-                                    <p className="text-sm">{test.hardness && typeof test.hardness === 'number' ? test.hardness.toFixed(1) : (test.hardness ? Number(test.hardness).toFixed(1) : "-")} mg/L</p>
-                                  </div>
-                                  <div className="space-y-1">
-                                    <p className="text-sm font-medium text-gray-600">Organic Carbon</p>
-                                    <p className="text-sm">{test.organic_carbon && typeof test.organic_carbon === 'number' ? test.organic_carbon.toFixed(2) : (test.organic_carbon ? Number(test.organic_carbon).toFixed(2) : "-")} mg/L</p>
-                                  </div>
-                                  <div className="space-y-1">
-                                    <p className="text-sm font-medium text-gray-600">Solids</p>
-                                    <p className="text-sm">{test.solids && typeof test.solids === 'number' ? test.solids.toFixed(1) : (test.solids ? Number(test.solids).toFixed(1) : "-")} mg/L</p>
-                                  </div>
-                                  <div className="space-y-1">
-                                    <p className="text-sm font-medium text-gray-600">Sulfate</p>
-                                    <p className="text-sm">{test.sulfate && typeof test.sulfate === 'number' ? test.sulfate.toFixed(1) : (test.sulfate ? Number(test.sulfate).toFixed(1) : "-")} mg/L</p>
-                                  </div>
-                                  <div className="space-y-1">
-                                    <p className="text-sm font-medium text-gray-600">Trihalomethanes</p>
-                                    <p className="text-sm">{test.trihalomethanes && typeof test.trihalomethanes === 'number' ? test.trihalomethanes.toFixed(3) : (test.trihalomethanes ? Number(test.trihalomethanes).toFixed(3) : "-")} μg/L</p>
-                                  </div>
-                                  <div className="space-y-1">
-                                    <p className="text-sm font-medium text-gray-600">Turbidity</p>
-                                    <p className="text-sm">{test.turbidity && typeof test.turbidity === 'number' ? test.turbidity.toFixed(2) : (test.turbidity ? Number(test.turbidity).toFixed(2) : "-")} NTU</p>
-                                  </div>
-                                </div>
-                                
-                                {/* Risk Probabilities */}
-                                <div className="mt-4">
-                                  <h5 className="font-medium mb-2">Risk Assessment Probabilities</h5>
-                                  <div className="grid grid-cols-3 gap-4">
-                                    <div className="bg-green-50 p-3 rounded-lg">
-                                      <p className="text-sm font-medium text-green-800">Safe</p>
-                                      <p className="text-lg font-bold text-green-900">
-                                        {(test.risk_probabilities?.["0"] * 100 || 0).toFixed(1)}%
+                                <h4 className="font-semibold mb-3">Test Details</h4>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                  <div className="space-y-2">
+                                    <div>
+                                      <p className="text-sm font-medium text-gray-600">Waterbody ID</p>
+                                      <p className="text-sm">{test.waterbodyId || "N/A"}</p>
+                                    </div>
+                                    <div>
+                                      <p className="text-sm font-medium text-gray-600">Location</p>
+                                      <p className="text-sm">{test.location}</p>
+                                    </div>
+                                    <div>
+                                      <p className="text-sm font-medium text-gray-600">Coordinates</p>
+                                      <p className="text-sm">
+                                        {test.latitude && test.longitude 
+                                          ? `${test.latitude.toFixed(6)}, ${test.longitude.toFixed(6)}`
+                                          : "N/A"
+                                        }
                                       </p>
                                     </div>
-                                    <div className="bg-yellow-50 p-3 rounded-lg">
-                                      <p className="text-sm font-medium text-yellow-800">Moderate Risk</p>
-                                      <p className="text-lg font-bold text-yellow-900">
-                                        {(test.risk_probabilities?.["1"] * 100 || 0).toFixed(1)}%
-                                      </p>
+                                  </div>
+                                  <div className="space-y-2">
+                                    <div>
+                                      <p className="text-sm font-medium text-gray-600">Test Date</p>
+                                      <p className="text-sm">{formatDate(test.dateTime)}</p>
                                     </div>
-                                    <div className="bg-red-50 p-3 rounded-lg">
-                                      <p className="text-sm font-medium text-red-800">High Risk</p>
-                                      <p className="text-lg font-bold text-red-900">
-                                        {(test.risk_probabilities?.["2"] * 100 || 0).toFixed(1)}%
-                                      </p>
+                                    <div>
+                                      <p className="text-sm font-medium text-gray-600">Created</p>
+                                      <p className="text-sm">{formatDate(test.createdAt)}</p>
+                                    </div>
+                                    <div>
+                                      <p className="text-sm font-medium text-gray-600">Photo</p>
+                                      <a 
+                                        href={test.photoUrl} 
+                                        target="_blank" 
+                                        rel="noopener noreferrer"
+                                        className="text-sm text-blue-600 hover:underline"
+                                      >
+                                        View Photo
+                                      </a>
                                     </div>
                                   </div>
                                 </div>

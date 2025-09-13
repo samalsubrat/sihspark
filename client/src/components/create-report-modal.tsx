@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { useAuth } from "@/contexts/auth-context"
 import { ReportsService, type CreateReportPayload } from "@/lib/reports"
 import { UploadButton } from "@/lib/uploadthing"
@@ -47,7 +47,7 @@ export function CreateReportModal({ onReportCreated }: CreateReportModalProps) {
   const [errors, setErrors] = useState<Record<string, string>>({})
 
   // Get current location using GPS
-  const getCurrentLocation = () => {
+  const getCurrentLocation = useCallback(() => {
     if (!navigator.geolocation) {
       setLocationError('Geolocation is not supported by this browser')
       return
@@ -107,7 +107,7 @@ export function CreateReportModal({ onReportCreated }: CreateReportModalProps) {
         maximumAge: 300000 // 5 minutes
       }
     )
-  }
+  }, [errors.latitude, errors.longitude, errors.location])
 
   // Handle location selection from map modal
   const handleLocationSelect = (latitude: number, longitude: number, googleMapsLink?: string) => {
@@ -130,7 +130,7 @@ export function CreateReportModal({ onReportCreated }: CreateReportModalProps) {
     if (open && !formData.latitude && !formData.longitude) {
       getCurrentLocation()
     }
-  }, [open])
+  }, [open, formData.latitude, formData.longitude, getCurrentLocation])
 
   // Generate Google Maps link
   const getGoogleMapsLink = () => {

@@ -1,26 +1,16 @@
 interface WaterTest {
   id: string
-  waterbody_name: string
-  test_type: "Surveillance" | "Routine" | "Emergency"
-  priority: "Low" | "Medium" | "High"
-  conducted_by: string
-  chloramines: number
-  conductivity: number
-  hardness: number
-  organic_carbon: number
-  solids: number
-  sulfate: number
-  trihalomethanes: number
-  turbidity: number
-  ph: number
-  predicted_class: number
-  risk_probabilities: {
-    "0": number
-    "1": number
-    "2": number
-  }
-  status: "Pending" | "Completed"
-  created_at: string
+  waterbodyName: string
+  waterbodyId?: string
+  dateTime: string
+  location: string
+  latitude?: number
+  longitude?: number
+  photoUrl: string
+  notes: string
+  quality: "good" | "medium" | "high" | "disease"
+  ashaId: string
+  createdAt: string
 }
 
 interface CreateWaterTestPayload {
@@ -62,11 +52,13 @@ interface UpdateWaterTestPayload {
 }
 
 class WaterTestsService {
-  private static baseUrl = '/api/v1/water-tests'
+  private static baseUrl = 'https://sihspark.onrender.com/api/v1/water-tests'
 
   static async getWaterTests(): Promise<WaterTest[]> {
     const token = localStorage.getItem('auth_token')
-    const response = await fetch(this.baseUrl, {
+    
+    // Try admin endpoint first (since user endpoint doesn't exist on production)
+    const response = await fetch(`${this.baseUrl}/all`, {
       headers: {
         'Authorization': `Bearer ${token}`,
         'Content-Type': 'application/json',
@@ -74,10 +66,17 @@ class WaterTestsService {
     })
 
     if (!response.ok) {
+      if (response.status === 403) {
+        // User doesn't have admin access, return empty array
+        console.warn('User does not have admin access to view all water tests')
+        return []
+      }
       throw new Error('Failed to fetch water tests')
     }
 
-    return await response.json()
+    const data = await response.json()
+    // Handle both direct array response and wrapped response
+    return Array.isArray(data) ? data : (data.waterTests || [])
   }
 
   static async getAllWaterTests(): Promise<WaterTest[]> {

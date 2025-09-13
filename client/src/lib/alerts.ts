@@ -38,7 +38,7 @@ interface AlertStatsResponse {
   stats: AlertStats
 }
 
-const API_BASE_URL = 'https://sihspark.onrender.com.onrender.com/api/v1'
+const API_BASE_URL = 'https://sihspark.onrender.com/api/v1'
 
 export class AlertService {
   private static getToken(): string | null {
