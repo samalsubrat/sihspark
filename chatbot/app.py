@@ -144,5 +144,9 @@ def health_check():
     }), 200
 
 if __name__ == '__main__':
+    # Get port from environment variable for deployment platforms
+    port = int(os.environ.get('PORT', 5000))
+    # Disable debug in production
+    debug_mode = os.environ.get('FLASK_ENV', 'production') == 'development'
     # Runs the Flask server
-    app.run(host='0.0.0.0', port=5000, debug=True)
+    app.run(host='0.0.0.0', port=port, debug=debug_mode)
