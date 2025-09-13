@@ -2,7 +2,7 @@
 
 ## Base URL
 ```
-http://localhost:5000
+https://sihsparkchatbot.onrender.com
 ```
 
 ## Endpoints
@@ -24,7 +24,7 @@ Send a message to the AI chatbot with language selection.
 #### Example Request:
 ```javascript
 // Next.js fetch example
-const response = await fetch('http://localhost:5000/chat', {
+const response = await fetch('https://sihsparkchatbot.onrender.com/chat', {
   method: 'POST',
   headers: {
     'Content-Type': 'application/json',
@@ -64,7 +64,7 @@ Get list of all supported languages.
 
 #### Example Request:
 ```javascript
-const response = await fetch('http://localhost:5000/languages');
+const response = await fetch('https://sihsparkchatbot.onrender.com/languages');
 const data = await response.json();
 ```
 
@@ -108,7 +108,7 @@ Check API health and features.
 
 #### Example Request:
 ```javascript
-const response = await fetch('http://localhost:5000/health');
+const response = await fetch('https://sihsparkchatbot.onrender.com/health');
 const data = await response.json();
 ```
 
@@ -144,7 +144,7 @@ export default function ChatComponent() {
     
     setLoading(true);
     try {
-      const res = await fetch('http://localhost:5000/chat', {
+      const res = await fetch('https://sihsparkchatbot.onrender.com/chat', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -212,7 +212,7 @@ export function useLanguages() {
   useEffect(() => {
     const fetchLanguages = async () => {
       try {
-        const response = await fetch('http://localhost:5000/languages');
+        const response = await fetch('https://sihsparkchatbot.onrender.com/languages');
         const data = await response.json();
         setLanguages(data.supported_languages);
       } catch (error) {
@@ -232,7 +232,7 @@ export function useLanguages() {
 ### 3. API Service
 ```javascript
 class ChatbotAPI {
-  constructor(baseURL = 'http://localhost:5000') {
+  constructor(baseURL = 'https://sihsparkchatbot.onrender.com') {
     this.baseURL = baseURL;
   }
 
@@ -294,7 +294,7 @@ export default ChatbotAPI;
 ### Next.js Error Handling:
 ```javascript
 try {
-  const response = await fetch('http://localhost:5000/chat', {
+  const response = await fetch('https://sihsparkchatbot.onrender.com/chat', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ message, language, history })
@@ -321,7 +321,7 @@ try {
 
 Create a `.env.local` file in your Next.js project:
 ```
-NEXT_PUBLIC_CHATBOT_API_URL=http://localhost:5000
+NEXT_PUBLIC_CHATBOT_API_URL=https://sihsparkchatbot.onrender.com
 ```
 
 Then use it in your components:

@@ -67,8 +67,8 @@ A Flask-based multilingual chatbot powered by Google's Gemini AI, specialized in
    ```
 
 5. **Access the API**
-   - API: http://localhost:5000
-   - Health Check: http://localhost:5000/health
+   - API: https://sihsparkchatbot.onrender.com
+   - Health Check: https://sihsparkchatbot.onrender.com/health
 
 ### Docker Deployment
 
@@ -213,28 +213,28 @@ A Flask-based multilingual chatbot powered by Google's Gemini AI, specialized in
 
 ### English Example:
 ```bash
-curl -X POST http://localhost:5000/chat \
+curl -X POST https://sihsparkchatbot.onrender.com/chat \
   -H "Content-Type: application/json" \
   -d '{"message": "What causes cholera?"}'
 ```
 
 ### Hindi Example:
 ```bash
-curl -X POST http://localhost:5000/chat \
+curl -X POST https://sihsparkchatbot.onrender.com/chat \
   -H "Content-Type: application/json" \
   -d '{"message": "हैजा के कारण क्या हैं?"}'
 ```
 
 ### Bengali Example:
 ```bash
-curl -X POST http://localhost:5000/chat \
+curl -X POST https://sihsparkchatbot.onrender.com/chat \
   -H "Content-Type: application/json" \
   -d '{"message": "কলেরার কারণ কী?"}'
 ```
 
 ### Check Supported Languages:
 ```bash
-curl -X GET http://localhost:5000/languages
+curl -X GET https://sihsparkchatbot.onrender.com/languages
 ```
 
 ## Environment Variables
