@@ -10,7 +10,7 @@
     "prisma:generate": "prisma generate",
     "prisma:push": "prisma db push",
     "prisma:studio": "prisma studio",
-    "seed": "node ./scripts/seed.js",
+    "seed": "node prisma/seed.js",
     "test": "node test-auth.js",
     "test:auth": "node test-auth.js"
   },
@@ -43,5 +43,8 @@
   "devDependencies": {
     "nodemon": "^3.1.10",
     "prisma": "^6.16.0"
+  },
+  "prisma": {
+    "seed": "node prisma/seed.js"
   }
 }

@@ -50,7 +50,7 @@ const createReport = async (req, res) => {
 
 const listLeaderReports = async (req, res) => {
   try {
-    if (!req.user || req.user.role !== "leader") {
+    if (!req.user || (req.user.role !== "leader" && req.user.role !== "admin")) {
       return res.status(403).json({ message: "forbidden" });
     }
 
