@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, useCallback } from "react"
+import React, { useState, useEffect, useCallback } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -15,7 +15,10 @@ import {
   Edit, 
   Trash2, 
   Eye,
-  Loader2 
+  Loader2,
+  ChevronDown,
+  ChevronRight,
+  ExternalLink
 } from "lucide-react"
 import {
   DropdownMenu,
@@ -47,6 +50,7 @@ export function ReportsTable() {
   const [reports, setReports] = useState<Report[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [expandedRows, setExpandedRows] = useState<Set<string>>(new Set())
 
   // Debug: Check authentication state
   useEffect(() => {
@@ -244,6 +248,20 @@ export function ReportsTable() {
     }
   }
 
+  const toggleRowExpansion = (reportId: string) => {
+    const newExpanded = new Set(expandedRows)
+    if (newExpanded.has(reportId)) {
+      newExpanded.delete(reportId)
+    } else {
+      newExpanded.add(reportId)
+    }
+    setExpandedRows(newExpanded)
+  }
+
+  const handleViewDetails = (reportId: string) => {
+    toggleRowExpansion(reportId)
+  }
+
   const filteredReports = reports.filter(
     (report) =>
       report.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -304,6 +322,7 @@ export function ReportsTable() {
           <Table>
             <TableHeader>
               <TableRow>
+                <TableHead className="w-[40px]"></TableHead>
                 <TableHead className="min-w-[150px]">Name</TableHead>
                 <TableHead className="min-w-[100px]">Date</TableHead>
                 <TableHead className="min-w-[200px]">Location</TableHead>
@@ -316,122 +335,237 @@ export function ReportsTable() {
             <TableBody>
               {filteredReports.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={7} className="text-center py-8 text-gray-500">
+                  <TableCell colSpan={8} className="text-center py-8 text-gray-500">
                     No reports found
                   </TableCell>
                 </TableRow>
               ) : (
                 filteredReports.map((report) => (
-                  <TableRow key={report.id}>
-                    <TableCell>
-                      <div>
-                        <div className="font-medium text-gray-900">{report.name || 'Unnamed Report'}</div>
-                        <div className="text-sm text-gray-500">{report.id || 'No ID'}</div>
-                        {report.comment && (
-                          <div className="text-xs text-gray-400 mt-1 truncate max-w-[200px]">
-                            {report.comment}
-                          </div>
+                  <React.Fragment key={report.id}>
+                    <TableRow className="cursor-pointer hover:bg-muted/50" onClick={() => toggleRowExpansion(report.id)}>
+                      <TableCell>
+                        {expandedRows.has(report.id) ? (
+                          <ChevronDown className="h-4 w-4" />
+                        ) : (
+                          <ChevronRight className="h-4 w-4" />
                         )}
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex items-center text-sm text-gray-600">
-                        <Calendar className="w-4 h-4 mr-1 flex-shrink-0" />
-                        <span className="whitespace-nowrap">
-                          {report.date ? new Date(report.date).toLocaleDateString() : 'No date'}
-                        </span>
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex items-center text-sm text-gray-600">
-                        <MapPin className="w-4 h-4 mr-1 flex-shrink-0" />
-                        <div className="min-w-0">
-                          {report.location && (
-                            <div className="truncate">{report.location}</div>
-                          )}
-                          {report.latitude && report.longitude && (
-                            <div className="text-xs text-gray-500 truncate">
-                              {report.latitude.toFixed(4)}, {report.longitude.toFixed(4)}
-                            </div>
-                          )}
-                          {report.mapArea && (
-                            <div className="text-xs text-gray-500 truncate">
-                              Area: {report.mapArea}
+                      </TableCell>
+                      <TableCell>
+                        <div>
+                          <div className="font-medium text-gray-900">{report.name || 'Unnamed Report'}</div>
+                          <div className="text-sm text-gray-500">{report.id || 'No ID'}</div>
+                          {report.comment && (
+                            <div className="text-xs text-gray-400 mt-1 truncate max-w-[200px]">
+                              {report.comment}
                             </div>
                           )}
                         </div>
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      {report.photoUrl && (
-                        <Avatar className="w-10 h-10 rounded-md flex-shrink-0">
-                          <AvatarImage src={report.photoUrl} alt="Report photo" />
-                          <AvatarFallback>IMG</AvatarFallback>
-                        </Avatar>
-                      )}
-                    </TableCell>
-                    <TableCell>
-                      <Badge className={getStatusColor(report.status)}>
-                        {report.status ? report.status.replace("_", " ") : "Unknown"}
-                      </Badge>
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex items-center space-x-2">
-                        <Progress value={report.progress || 0} className="w-16" />
-                        <span className="text-xs text-gray-500 min-w-[30px]">
-                          {report.progress || 0}%
-                        </span>
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" className="h-8 w-8 p-0">
-                            <MoreHorizontal className="h-4 w-4" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuItem>
-                            <Eye className="mr-2 h-4 w-4" />
-                            View Details
-                          </DropdownMenuItem>
-                          {canModifyReport(report) && (
-                            <>
-                              <DropdownMenuItem>
-                                <Edit className="mr-2 h-4 w-4" />
-                                Edit Status
-                              </DropdownMenuItem>
-                              <DropdownMenuItem
-                                onClick={() => handleUpdateStatus(report.id, 'awaiting', 0)}
-                                disabled={report.status === 'awaiting'}
-                              >
-                                Set Awaiting
-                              </DropdownMenuItem>
-                              <DropdownMenuItem
-                                onClick={() => handleUpdateStatus(report.id, 'in_progress', 50)}
-                                disabled={report.status === 'in_progress'}
-                              >
-                                Set In Progress
-                              </DropdownMenuItem>
-                              <DropdownMenuItem
-                                onClick={() => handleUpdateStatus(report.id, 'resolved', 100)}
-                                disabled={report.status === 'resolved'}
-                              >
-                                Mark Resolved
-                              </DropdownMenuItem>
-                              <DropdownMenuItem
-                                onClick={() => handleDeleteReport(report.id)}
-                                className="text-red-600"
-                              >
-                                <Trash2 className="mr-2 h-4 w-4" />
-                                Delete
-                              </DropdownMenuItem>
-                            </>
-                          )}
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </TableCell>
-                  </TableRow>
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex items-center text-sm text-gray-600">
+                          <Calendar className="w-4 h-4 mr-1 flex-shrink-0" />
+                          <span className="whitespace-nowrap">
+                            {report.date ? new Date(report.date).toLocaleDateString() : 'No date'}
+                          </span>
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex items-center text-sm text-gray-600">
+                          <MapPin className="w-4 h-4 mr-1 flex-shrink-0" />
+                          <div className="min-w-0">
+                            {report.location && (
+                              <div className="truncate">{report.location}</div>
+                            )}
+                            {report.latitude && report.longitude && (
+                              <div className="text-xs text-gray-500 truncate">
+                                {report.latitude.toFixed(4)}, {report.longitude.toFixed(4)}
+                              </div>
+                            )}
+                            {report.mapArea && (
+                              <div className="text-xs text-gray-500 truncate">
+                                Area: {report.mapArea}
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        {report.photoUrl && (
+                          <Avatar className="w-10 h-10 rounded-md flex-shrink-0">
+                            <AvatarImage src={report.photoUrl} alt="Report photo" />
+                            <AvatarFallback>IMG</AvatarFallback>
+                          </Avatar>
+                        )}
+                      </TableCell>
+                      <TableCell>
+                        <Badge className={getStatusColor(report.status)}>
+                          {report.status ? report.status.replace("_", " ") : "Unknown"}
+                        </Badge>
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex items-center space-x-2">
+                          <Progress value={report.progress || 0} className="w-16" />
+                          <span className="text-xs text-gray-500 min-w-[30px]">
+                            {report.progress || 0}%
+                          </span>
+                        </div>
+                      </TableCell>
+                      <TableCell onClick={(e) => e.stopPropagation()}>
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" className="h-8 w-8 p-0">
+                              <MoreHorizontal className="h-4 w-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuItem onClick={() => handleViewDetails(report.id)}>
+                              <Eye className="mr-2 h-4 w-4" />
+                              View Details
+                            </DropdownMenuItem>
+                            {canModifyReport(report) && (
+                              <>
+                                <DropdownMenuItem>
+                                  <Edit className="mr-2 h-4 w-4" />
+                                  Edit Status
+                                </DropdownMenuItem>
+                                <DropdownMenuItem
+                                  onClick={() => handleUpdateStatus(report.id, 'awaiting', 0)}
+                                  disabled={report.status === 'awaiting'}
+                                >
+                                  Set Awaiting
+                                </DropdownMenuItem>
+                                <DropdownMenuItem
+                                  onClick={() => handleUpdateStatus(report.id, 'in_progress', 50)}
+                                  disabled={report.status === 'in_progress'}
+                                >
+                                  Set In Progress
+                                </DropdownMenuItem>
+                                <DropdownMenuItem
+                                  onClick={() => handleUpdateStatus(report.id, 'resolved', 100)}
+                                  disabled={report.status === 'resolved'}
+                                >
+                                  Mark Resolved
+                                </DropdownMenuItem>
+                                <DropdownMenuItem
+                                  onClick={() => handleDeleteReport(report.id)}
+                                  className="text-red-600"
+                                >
+                                  <Trash2 className="mr-2 h-4 w-4" />
+                                  Delete
+                                </DropdownMenuItem>
+                              </>
+                            )}
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </TableCell>
+                    </TableRow>
+                    {/* Expanded Row Details */}
+                    {expandedRows.has(report.id) && (
+                      <TableRow>
+                        <TableCell colSpan={8} className="bg-muted/25">
+                          <div className="p-4">
+                            <h4 className="font-semibold mb-3">Report Details</h4>
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                              {/* Basic Information */}
+                              <div className="space-y-3">
+                                <h5 className="font-medium text-sm text-gray-600">Basic Information</h5>
+                                <div className="space-y-2">
+                                  <div>
+                                    <p className="text-xs font-medium text-gray-500">Report ID</p>
+                                    <p className="text-sm">{report.id}</p>
+                                  </div>
+                                  <div>
+                                    <p className="text-xs font-medium text-gray-500">Report Name</p>
+                                    <p className="text-sm">{report.name || 'N/A'}</p>
+                                  </div>
+                                  <div>
+                                    <p className="text-xs font-medium text-gray-500">Date Created</p>
+                                    <p className="text-sm">{report.date ? new Date(report.date).toLocaleDateString() : 'N/A'}</p>
+                                  </div>
+                                  <div>
+                                    <p className="text-xs font-medium text-gray-500">Status</p>
+                                    <Badge className={getStatusColor(report.status)}>
+                                      {report.status ? report.status.replace("_", " ") : "Unknown"}
+                                    </Badge>
+                                  </div>
+                                </div>
+                              </div>
+
+                              {/* Location Information */}
+                              <div className="space-y-3">
+                                <h5 className="font-medium text-sm text-gray-600">Location Information</h5>
+                                <div className="space-y-2">
+                                  <div>
+                                    <p className="text-xs font-medium text-gray-500">Location Name</p>
+                                    <p className="text-sm">{report.location || 'N/A'}</p>
+                                  </div>
+                                  {report.mapArea && (
+                                    <div>
+                                      <p className="text-xs font-medium text-gray-500">Map Area</p>
+                                      <p className="text-sm">{report.mapArea}</p>
+                                    </div>
+                                  )}
+                                  {report.latitude && report.longitude && (
+                                    <div>
+                                      <p className="text-xs font-medium text-gray-500">Coordinates</p>
+                                      <p className="text-sm">{report.latitude.toFixed(6)}, {report.longitude.toFixed(6)}</p>
+                                      <Button
+                                        variant="outline"
+                                        size="sm"
+                                        className="mt-1"
+                                        onClick={() => {
+                                          const mapsUrl = `https://www.google.com/maps?q=${report.latitude},${report.longitude}`
+                                          window.open(mapsUrl, '_blank', 'noopener,noreferrer')
+                                        }}
+                                      >
+                                        <ExternalLink className="w-3 h-3 mr-1" />
+                                        View on Maps
+                                      </Button>
+                                    </div>
+                                  )}
+                                </div>
+                              </div>
+
+                              {/* Additional Details */}
+                              <div className="space-y-3">
+                                <h5 className="font-medium text-sm text-gray-600">Additional Details</h5>
+                                <div className="space-y-2">
+                                  <div>
+                                    <p className="text-xs font-medium text-gray-500">Progress</p>
+                                    <div className="flex items-center space-x-2">
+                                      <Progress value={report.progress || 0} className="w-24" />
+                                      <span className="text-sm">{report.progress || 0}%</span>
+                                    </div>
+                                  </div>
+                                  {report.comment && (
+                                    <div>
+                                      <p className="text-xs font-medium text-gray-500">Comments</p>
+                                      <p className="text-sm break-words">{report.comment}</p>
+                                    </div>
+                                  )}
+                                  <div>
+                                    <p className="text-xs font-medium text-gray-500">Leader ID</p>
+                                    <p className="text-sm">{report.leaderId}</p>
+                                  </div>
+                                  {report.photoUrl && (
+                                    <div>
+                                      <p className="text-xs font-medium text-gray-500">Photo</p>
+                                      <div className="mt-1">
+                                        <Avatar className="w-16 h-16 rounded-md">
+                                          <AvatarImage src={report.photoUrl} alt="Report photo" />
+                                          <AvatarFallback>IMG</AvatarFallback>
+                                        </Avatar>
+                                      </div>
+                                    </div>
+                                  )}
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    )}
+                  </React.Fragment>
                 ))
               )}
             </TableBody>

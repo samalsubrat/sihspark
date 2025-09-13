@@ -1,9 +1,10 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useAuth } from "@/contexts/auth-context"
 import { ReportsService, type CreateReportPayload } from "@/lib/reports"
 import { UploadButton } from "@/lib/uploadthing"
+import MapLocationSelector from "./map-location-selector"
 import {
   Dialog,
   DialogContent,
@@ -16,7 +17,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Card } from "@/components/ui/card"
-import { Plus, MapPin, Calendar, Loader2, Upload, CheckCircle } from "lucide-react"
+import { Plus, MapPin, Calendar, Loader2, Upload, CheckCircle, Navigation, ExternalLink, Map } from "lucide-react"
 
 interface CreateReportModalProps {
   onReportCreated: () => void
@@ -27,6 +28,9 @@ export function CreateReportModal({ onReportCreated }: CreateReportModalProps) {
   const [open, setOpen] = useState(false)
   const [loading, setLoading] = useState(false)
   const [uploadStatus, setUploadStatus] = useState<'idle' | 'uploading' | 'success' | 'error'>('idle')
+  const [locationLoading, setLocationLoading] = useState(false)
+  const [locationError, setLocationError] = useState<string | null>(null)
+  const [mapSelectorOpen, setMapSelectorOpen] = useState(false)
   
   // Form state
   const [formData, setFormData] = useState({
@@ -41,6 +45,106 @@ export function CreateReportModal({ onReportCreated }: CreateReportModalProps) {
   })
 
   const [errors, setErrors] = useState<Record<string, string>>({})
+
+  // Get current location using GPS
+  const getCurrentLocation = () => {
+    if (!navigator.geolocation) {
+      setLocationError('Geolocation is not supported by this browser')
+      return
+    }
+
+    setLocationLoading(true)
+    setLocationError(null)
+
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const latitude = position.coords.latitude.toFixed(6)
+        const longitude = position.coords.longitude.toFixed(6)
+        
+        setFormData(prev => ({
+          ...prev,
+          latitude,
+          longitude
+        }))
+        
+        setLocationLoading(false)
+        
+        // Clear any existing location errors
+        if (errors.latitude) {
+          setErrors(prev => ({ ...prev, latitude: '' }))
+        }
+        if (errors.longitude) {
+          setErrors(prev => ({ ...prev, longitude: '' }))
+        }
+        if (errors.location) {
+          setErrors(prev => ({ ...prev, location: '' }))
+        }
+      },
+      (error) => {
+        setLocationLoading(false)
+        let errorMessage = 'Failed to get current location'
+        
+        switch (error.code) {
+          case error.PERMISSION_DENIED:
+            errorMessage = 'Location access denied. Please allow location access and try again.'
+            break
+          case error.POSITION_UNAVAILABLE:
+            errorMessage = 'Location information is unavailable.'
+            break
+          case error.TIMEOUT:
+            errorMessage = 'Location request timed out.'
+            break
+          default:
+            errorMessage = 'An unknown error occurred while retrieving location.'
+            break
+        }
+        
+        setLocationError(errorMessage)
+      },
+      {
+        enableHighAccuracy: true,
+        timeout: 10000,
+        maximumAge: 300000 // 5 minutes
+      }
+    )
+  }
+
+  // Handle location selection from map modal
+  const handleLocationSelect = (latitude: number, longitude: number, googleMapsLink?: string) => {
+    setFormData(prev => ({
+      ...prev,
+      latitude: latitude.toString(),
+      longitude: longitude.toString(),
+      // Auto-fill location name with Google Maps link if not already set
+      location: googleMapsLink && !prev.location.trim() ? googleMapsLink : prev.location
+    }))
+    
+    // Clear any existing location errors
+    if (errors.latitude) setErrors(prev => ({ ...prev, latitude: '' }))
+    if (errors.longitude) setErrors(prev => ({ ...prev, longitude: '' }))
+    if (errors.location) setErrors(prev => ({ ...prev, location: '' }))
+  }
+
+  // Auto-fill location when modal opens
+  useEffect(() => {
+    if (open && !formData.latitude && !formData.longitude) {
+      getCurrentLocation()
+    }
+  }, [open])
+
+  // Generate Google Maps link
+  const getGoogleMapsLink = () => {
+    if (!formData.latitude || !formData.longitude) return null
+    return `https://www.google.com/maps?q=${formData.latitude},${formData.longitude}`
+  }
+
+  // Open Google Maps in new tab
+  const openInGoogleMaps = () => {
+    const mapsLink = getGoogleMapsLink()
+    if (mapsLink) {
+      window.open(mapsLink, '_blank', 'noopener,noreferrer')
+    }
+  }
 
   const validateForm = () => {
     const newErrors: Record<string, string> = {}
@@ -196,10 +300,45 @@ export function CreateReportModal({ onReportCreated }: CreateReportModalProps) {
 
           {/* Location Section */}
           <div className="space-y-4">
-            <Label className="text-sm font-medium flex items-center gap-2">
-              <MapPin className="w-4 h-4" />
-              Location Information
-            </Label>
+            <div className="flex items-center justify-between">
+              <Label className="text-sm font-medium flex items-center gap-2">
+                <MapPin className="w-4 h-4" />
+                Location Information
+              </Label>
+              <div className="flex gap-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setMapSelectorOpen(true)}
+                  className="flex items-center gap-2"
+                >
+                  <Map className="w-4 h-4" />
+                  Select on Map
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={getCurrentLocation}
+                  disabled={locationLoading}
+                  className="flex items-center gap-2"
+                >
+                  {locationLoading ? (
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                  ) : (
+                    <Navigation className="w-4 h-4" />
+                  )}
+                  {locationLoading ? 'Getting...' : 'Use GPS'}
+                </Button>
+              </div>
+            </div>
+            
+            {locationError && (
+              <div className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg p-3">
+                {locationError}
+              </div>
+            )}
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
@@ -226,14 +365,16 @@ export function CreateReportModal({ onReportCreated }: CreateReportModalProps) {
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="latitude" className="text-sm">Latitude</Label>
+                <Label htmlFor="latitude" className="text-sm">
+                  Latitude {formData.latitude && <span className="text-green-600">(Auto-filled)</span>}
+                </Label>
                 <Input
                   id="latitude"
                   type="number"
                   step="any"
                   value={formData.latitude}
                   onChange={(e) => handleInputChange('latitude', e.target.value)}
-                  placeholder="e.g., 28.6139"
+                  placeholder="e.g., 28.6139 (auto-filled from GPS)"
                   className={errors.latitude ? 'border-red-300' : ''}
                 />
                 {errors.latitude && (
@@ -242,14 +383,16 @@ export function CreateReportModal({ onReportCreated }: CreateReportModalProps) {
               </div>
               
               <div className="space-y-2">
-                <Label htmlFor="longitude" className="text-sm">Longitude</Label>
+                <Label htmlFor="longitude" className="text-sm">
+                  Longitude {formData.longitude && <span className="text-green-600">(Auto-filled)</span>}
+                </Label>
                 <Input
                   id="longitude"
                   type="number"
                   step="any"
                   value={formData.longitude}
                   onChange={(e) => handleInputChange('longitude', e.target.value)}
-                  placeholder="e.g., 77.2090"
+                  placeholder="e.g., 77.2090 (auto-filled from GPS)"
                   className={errors.longitude ? 'border-red-300' : ''}
                 />
                 {errors.longitude && (
@@ -257,6 +400,35 @@ export function CreateReportModal({ onReportCreated }: CreateReportModalProps) {
                 )}
               </div>
             </div>
+            
+            {/* Google Maps Link */}
+            {formData.latitude && formData.longitude && (
+              <div className="bg-green-50 border border-green-200 rounded-lg p-3">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <MapPin className="w-4 h-4 text-green-600" />
+                    <div>
+                      <p className="text-sm font-medium text-green-800">
+                        Location Coordinates
+                      </p>
+                      <p className="text-xs text-green-600">
+                        {formData.latitude}, {formData.longitude}
+                      </p>
+                    </div>
+                  </div>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={openInGoogleMaps}
+                    className="flex items-center gap-2 text-blue-600 hover:text-blue-700 hover:bg-blue-50"
+                  >
+                    <ExternalLink className="w-4 h-4" />
+                    View in Maps
+                  </Button>
+                </div>
+              </div>
+            )}
             
             {errors.location && (
               <p className="text-sm text-red-600">{errors.location}</p>
@@ -391,6 +563,15 @@ export function CreateReportModal({ onReportCreated }: CreateReportModalProps) {
           </div>
         </div>
       </DialogContent>
+
+      {/* Map Location Selector Modal */}
+      <MapLocationSelector
+        open={mapSelectorOpen}
+        onOpenChange={setMapSelectorOpen}
+        onLocationSelect={handleLocationSelect}
+        initialLatitude={formData.latitude ? Number(formData.latitude) : undefined}
+        initialLongitude={formData.longitude ? Number(formData.longitude) : undefined}
+      />
     </Dialog>
   )
 }
