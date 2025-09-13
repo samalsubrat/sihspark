@@ -5,7 +5,8 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { ScrollArea } from "@/components/ui/scroll-area"
-import { MessageCircle, X, Send, Bot, User } from "lucide-react"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { MessageCircle, X, Send, Bot, User, Globe } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
 
 interface ChatMessage {
@@ -14,15 +15,32 @@ interface ChatMessage {
 }
 
 interface ChatResponse {
-  history: ChatMessage[]
   response: string
+  history: ChatMessage[]
+  selected_language: string
 }
+
+const SUPPORTED_LANGUAGES = [
+  { code: "en", name: "English" },
+  { code: "hi", name: "Hindi (हिंदी)" },
+  { code: "bn", name: "Bengali (বাংলা)" },
+  { code: "te", name: "Telugu (తెలుగు)" },
+  { code: "mr", name: "Marathi (मराठी)" },
+  { code: "ta", name: "Tamil (தமிழ்)" },
+  { code: "gu", name: "Gujarati (ગુજરાતી)" },
+  { code: "kn", name: "Kannada (ಕನ್ನಡ)" },
+  { code: "ml", name: "Malayalam (മലയാളം)" },
+  { code: "pa", name: "Punjabi (ਪੰਜਾਬੀ)" },
+  { code: "or", name: "Odia (ଓଡ଼ିଆ)" },
+  { code: "as", name: "Assamese (অসমীয়া)" }
+]
 
 export default function ChatbotOverlay() {
   const [isOpen, setIsOpen] = useState(false)
   const [messages, setMessages] = useState<ChatMessage[]>([])
   const [input, setInput] = useState("")
   const [isLoading, setIsLoading] = useState(false)
+  const [selectedLanguage, setSelectedLanguage] = useState("English")
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
   const scrollToBottom = () => {
@@ -46,17 +64,19 @@ export default function ChatbotOverlay() {
       parts: [userMessage]
     }
     
-    setMessages(prev => [...prev, newUserMessage])
+    const currentMessages = [...messages, newUserMessage]
+    setMessages(currentMessages)
 
     try {
-      const response = await fetch("http://localhost:5000/chat", {
+      const response = await fetch("/api/chat", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
           message: userMessage,
-          history: messages
+          language: selectedLanguage,
+          history: messages // Send previous messages, not including the current one
         }),
       })
 
@@ -68,9 +88,14 @@ export default function ChatbotOverlay() {
       
       // Update messages with the complete history from the API
       setMessages(data.history)
+      
+      // Update selected language if it changed
+      if (data.selected_language && data.selected_language !== selectedLanguage) {
+        setSelectedLanguage(data.selected_language)
+      }
     } catch (error) {
       console.error("Error sending message:", error)
-      // Add error message
+      // Add error message to current messages
       const errorMessage: ChatMessage = {
         role: "model",
         parts: ["Sorry, I'm having trouble connecting right now. Please try again later."]
@@ -140,10 +165,27 @@ export default function ChatbotOverlay() {
           >
             <Card className="shadow-2xl border-2 border-blue-200 bg-white/95 backdrop-blur-sm -py-3">
               <CardHeader className="bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-t-lg py-3">
-                <CardTitle className="flex items-center gap-2 text-lg">
-                  <Bot className="h-5 w-5" />
-                  SPARK Health Assistant
-                </CardTitle>
+                <div className="flex items-center justify-between">
+                  <CardTitle className="flex items-center gap-2 text-lg">
+                    <Bot className="h-5 w-5" />
+                    SPARK Health Assistant
+                  </CardTitle>
+                  <div className="flex items-center gap-2">
+                    <Globe className="h-4 w-4" />
+                    <Select value={selectedLanguage} onValueChange={setSelectedLanguage}>
+                      <SelectTrigger className="w-36 h-8 text-xs bg-white/20 border-white/30 text-white hover:bg-white/30">
+                        <SelectValue placeholder="Select Language" />
+                      </SelectTrigger>
+                      <SelectContent className="max-h-60">
+                        {SUPPORTED_LANGUAGES.map((lang) => (
+                          <SelectItem key={lang.code} value={lang.name} className="text-sm">
+                            {lang.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
                 <p className="text-blue-100 text-sm">
                   Ask me about water quality and health!
                 </p>
@@ -229,7 +271,12 @@ export default function ChatbotOverlay() {
                       value={input}
                       onChange={(e) => setInput(e.target.value)}
                       onKeyPress={handleKeyPress}
-                      placeholder="Ask about water quality, health tips..."
+                      placeholder={
+                        selectedLanguage === "Hindi (हिंदी)" ? "जल गुणवत्ता, स्वास्थ्य सुझावों के बारे में पूछें..." :
+                        selectedLanguage === "Bengali (বাংলা)" ? "জল গুণমান, স্বাস্থ্য পরামর্শ সম্পর্কে জিজ্ঞাসা করুন..." :
+                        selectedLanguage === "Tamil (தமிழ்)" ? "நீரின் தரம், ஆரோக்கிய குறிப்புகள் பற்றி கேளுங்கள்..." :
+                        "Ask about water quality, health tips..."
+                      }
                       className="flex-1"
                       disabled={isLoading}
                     />
@@ -243,7 +290,10 @@ export default function ChatbotOverlay() {
                     </Button>
                   </div>
                   <p className="text-xs text-gray-500 mt-1">
-                    Press Enter to send • Powered by SPARK AI
+                    {selectedLanguage === "Hindi (हिंदी)" ? "भेजने के लिए Enter दबाएं • SPARK AI द्वारा संचालित" :
+                     selectedLanguage === "Bengali (বাংলা)" ? "পাঠাতে Enter চাপুন • SPARK AI দ্বারা চালিত" :
+                     selectedLanguage === "Tamil (தமிழ்)" ? "அனுப்ப Enter அழுத்தவும் • SPARK AI மூலம் இயக்கப்படுகிறது" :
+                     "Press Enter to send • Powered by SPARK AI"}
                   </p>
                 </div>
               </CardContent>
