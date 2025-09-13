@@ -1,7 +1,13 @@
 import prisma from "../lib/db.js";
+import { sendSMSWrapper } from "../lib/sms.js";
 
 const createReport = async (req, res) => {
   try {
+    // Check if user is authenticated and has permission
+    if (!req.user || !["leader", "admin", "public"].includes(req.user.role)) {
+      return res.status(403).json({ message: "forbidden" });
+    }
+
     const {
       name,
       location,
@@ -13,33 +19,64 @@ const createReport = async (req, res) => {
       photoUrl,
       comment,
     } = req.body;
-    if (!name || !location || !date || !mapArea || !leaderId || !photoUrl) {
+    
+    // Required fields validation
+    if (!name || !date) {
       return res.status(400).json({
-        message:
-          "name, location, date, mapArea, leaderId, photoUrl are required",
+        message: "name and date are required",
       });
     }
 
-    const leader = await prisma.user.findUnique({ where: { id: leaderId } });
-    if (!leader || leader.role !== "leader") {
-      return res.status(400).json({ message: "invalid leaderId" });
+    // Either location or coordinates must be provided
+    if (!location && (!latitude || !longitude)) {
+      return res.status(400).json({
+        message: "Either location name or coordinates (latitude, longitude) are required",
+      });
     }
+
+    // Use the authenticated user as the leaderId (both admin and leader can create reports)
+    const actualLeaderId = req.user.id;
 
     const report = await prisma.report.create({
       data: {
         name,
-        location,
+        location: location || null,
         latitude: typeof latitude === "number" ? latitude : null,
         longitude: typeof longitude === "number" ? longitude : null,
         date: new Date(date),
-        mapArea,
-        photoUrl,
+        mapArea: mapArea || null,
+        photoUrl: photoUrl || null,
         comment: comment || null,
-        leaderId,
+        leaderId: actualLeaderId,
       },
     });
 
     // SMS notification to the local leader about this report should be sent here (to be implemented).
+
+    // Get the user who created the report for SMS notification
+    const reportCreator = await prisma.user.findUnique({ where: { id: actualLeaderId } });
+    if (reportCreator && reportCreator.number) {
+      const formattedDate = new Date(date).toLocaleString("en-IN", {
+    weekday: "short",   // Thu
+    day: "2-digit",     // 11
+    month: "short",     // Sep
+    year: "numeric",    // 2025
+    hour: "2-digit",    // 03
+    minute: "2-digit",  // 30
+    hour12: true,       // AM/PM
+    timeZone: "Asia/Kolkata", // Indian time zone
+  });
+
+  const smsMessage = `🚨 New Report Created 🚨
+Name: ${name}
+Location: ${location}
+Date: ${formattedDate}
+Map Area: ${mapArea}`;
+
+      await sendSMSWrapper(reportCreator.number, smsMessage);
+    } else {
+      console.warn(`⚠️ User ${actualLeaderId} has no phone number saved.`);
+    }
 
     return res.status(201).json({ report });
   } catch (error) {
@@ -50,20 +87,29 @@ const createReport = async (req, res) => {
 
 const listLeaderReports = async (req, res) => {
   try {
-    if (!req.user || (req.user.role !== "leader" && req.user.role !== "admin")) {
+    if (!req.user || !["leader", "admin"].includes(req.user.role)) {
       return res.status(403).json({ message: "forbidden" });
     }
 
+    // Both admins and leaders can see all reports
+    const whereClause = {}; // No filtering - show all reports
+
     const reports = await prisma.report.findMany({
-      where: { leaderId: req.user.id },
+      where: whereClause,
       orderBy: { createdAt: "desc" },
       select: {
         id: true,
         name: true,
         location: true,
+        latitude: true,
+        longitude: true,
         date: true,
+        mapArea: true,
         photoUrl: true,
         comment: true,
+        status: true,
+        progress: true,
+        leaderId: true,
         createdAt: true,
       },
     });
@@ -77,7 +123,7 @@ const listLeaderReports = async (req, res) => {
 
 const updateReport = async (req, res) => {
   try {
-    if (!req.user || req.user.role !== "leader") {
+    if (!req.user || !["leader", "admin"].includes(req.user.role)) {
       return res.status(403).json({ message: "forbidden" });
     }
 
@@ -86,8 +132,9 @@ const updateReport = async (req, res) => {
 
     const report = await prisma.report.findUnique({ where: { id } });
     if (!report) return res.status(404).json({ message: "report not found" });
-    if (report.leaderId !== req.user.id)
-      return res.status(403).json({ message: "forbidden" });
+    
+    // Both admins and leaders can update any report
+    // No additional permission checks needed
 
     const updates = {};
     if (status) {

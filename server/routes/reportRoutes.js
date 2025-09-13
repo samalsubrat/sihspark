@@ -9,7 +9,7 @@ import { isLoggedIn } from "../middlewares/auth.js";
 
 const router = express.Router();
 
-router.post("/", createReport);
+router.post("/", isLoggedIn, createReport);
 router.get("/", isLoggedIn, listLeaderReports);
 router.delete("/:id", isLoggedIn, deleteReport);
 router.patch("/:id", isLoggedIn, updateReport);
