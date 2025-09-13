@@ -146,7 +146,7 @@ export default function AppPage() {
                 <CardDescription>User administration</CardDescription>
               </CardHeader>
               <CardContent>
-                <Link href="/dashboard/roles">
+                <Link href="/dashboard/role-management">
                   <Button variant="outline" className="w-full">
                     Manage Roles
                   </Button>
