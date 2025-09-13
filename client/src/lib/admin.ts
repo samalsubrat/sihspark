@@ -25,6 +25,15 @@ interface ListUsersResponse {
   nextCursor: string | null
 }
 
+interface UserActivity {
+  id: string
+  email: string
+  role: string
+  name?: string
+  lastActivity?: string
+  createdAt: string
+}
+
 interface CreateUserResponse {
   user: {
     id: string
@@ -231,6 +240,11 @@ export class AdminService {
 
     return await response.json()
   }
+
+  static async getRecentUsers(limit: number = 10): Promise<User[]> {
+    const response = await this.listUsers({ limit })
+    return response.users
+  }
 }
 
-export type { User, CreateUserPayload, UpdateUserPayload, ListUsersParams, ListUsersResponse }
+export type { User, CreateUserPayload, UpdateUserPayload, ListUsersParams, ListUsersResponse, UserActivity }

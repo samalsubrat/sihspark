@@ -21,12 +21,23 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     const initAuth = async () => {
       try {
-        if (AuthService.isAuthenticated()) {
-          const userData = await AuthService.getProfile()
-          setUser(userData)
+        // Sync token from localStorage to cookie for middleware
+        AuthService.syncTokenToCookie()
+        
+        // Check if we have a token in localStorage or cookies
+        if (AuthService.isAuthenticatedWithCookie()) {
+          try {
+            const userData = await AuthService.getProfile()
+            setUser(userData)
+          } catch (error) {
+            console.error('Failed to fetch user profile:', error)
+            // If profile fetch fails, clear the token
+            AuthService.logout()
+          }
         }
       } catch (error) {
         console.error('Auth initialization failed:', error)
+        // Clear any invalid tokens
         AuthService.logout()
       } finally {
         setLoading(false)
@@ -55,8 +66,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }
 
   const logout = () => {
-    AuthService.logout()
     setUser(null)
+    AuthService.logout()
   }
 
   const value = {
@@ -65,7 +76,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     login,
     signup,
     logout,
-    isAuthenticated: !!user,
+    isAuthenticated: !!user || AuthService.isAuthenticatedWithCookie(),
   }
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>

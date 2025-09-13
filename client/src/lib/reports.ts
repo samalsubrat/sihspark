@@ -5,7 +5,7 @@ interface Report {
   latitude?: number
   longitude?: number
   date: string
-  mapArea?: string
+  mapArea?: string | object
   leaderId: string
   photoUrl?: string
   comment?: string
@@ -19,7 +19,7 @@ interface CreateReportPayload {
   latitude?: number
   longitude?: number
   date: string
-  mapArea?: string
+  mapArea?: string | object
   leaderId: string
   photoUrl?: string
   comment?: string
@@ -52,7 +52,8 @@ interface DeleteReportResponse {
   deleted: boolean
 }
 
-const API_BASE_URL = 'https://sihspark.onrender.com/api/v1'
+// Use internal Next.js API routes. They proxy to the backend and handle auth forwarding.
+const INTERNAL_API_BASE = '/api/reports'
 
 export class ReportsService {
   private static getToken(): string | null {
@@ -73,7 +74,7 @@ export class ReportsService {
   }
 
   static async createReport(payload: CreateReportPayload): Promise<CreateReportResponse> {
-    const response = await fetch(`${API_BASE_URL}/reports`, {
+    const response = await fetch(`${INTERNAL_API_BASE}`, {
       method: 'POST',
       headers: this.getAuthHeaders(),
       body: JSON.stringify(payload),
@@ -95,7 +96,7 @@ export class ReportsService {
   }
 
   static async getReports(): Promise<ReportsResponse> {
-    const response = await fetch(`${API_BASE_URL}/reports`, {
+  const response = await fetch(`${INTERNAL_API_BASE}`, {
       method: 'GET',
       headers: this.getAuthHeaders(),
     })
@@ -118,12 +119,24 @@ export class ReportsService {
       
       throw new Error(errorMessage)
     }
-
-    return await response.json()
+    const data = await response.json()
+    // Normalize various possible backend shapes into { reports: Report[] }
+    let reports: unknown = (data && typeof data === 'object') ? (data as any).reports : data
+    if (Array.isArray((data as any)?.data)) {
+      reports = (data as any).data
+    }
+    if (!Array.isArray(reports) && Array.isArray((data as any)?.items)) {
+      reports = (data as any).items
+    }
+    if (!Array.isArray(reports)) {
+      console.warn('Unexpected reports response shape; falling back to empty list. Raw:', data)
+      reports = []
+    }
+    return { reports: reports as Report[] }
   }
 
   static async updateReport(id: string, payload: UpdateReportPayload): Promise<UpdateReportResponse> {
-    const response = await fetch(`${API_BASE_URL}/reports/${id}`, {
+    const response = await fetch(`${INTERNAL_API_BASE}/${id}`, {
       method: 'PATCH',
       headers: this.getAuthHeaders(),
       body: JSON.stringify(payload),
@@ -145,7 +158,7 @@ export class ReportsService {
   }
 
   static async deleteReport(id: string): Promise<DeleteReportResponse> {
-    const response = await fetch(`${API_BASE_URL}/reports/${id}`, {
+    const response = await fetch(`${INTERNAL_API_BASE}/${id}`, {
       method: 'DELETE',
       headers: this.getAuthHeaders(),
     })

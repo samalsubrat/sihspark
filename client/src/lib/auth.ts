@@ -33,8 +33,8 @@ export class AuthService {
   private static setToken(token: string): void {
     if (typeof window !== 'undefined') {
       localStorage.setItem('auth_token', token)
-      // Also set as httpOnly cookie for middleware
-      document.cookie = `auth_token=${token}; path=/; max-age=${7 * 24 * 60 * 60}; secure; samesite=strict`
+      // Set cookie for middleware - use sameSite=lax for better compatibility
+      document.cookie = `auth_token=${token}; path=/; max-age=${7 * 24 * 60 * 60}; samesite=lax`
     }
   }
 
@@ -42,7 +42,7 @@ export class AuthService {
     if (typeof window !== 'undefined') {
       localStorage.removeItem('auth_token')
       // Remove cookie as well
-      document.cookie = 'auth_token=; path=/; max-age=0'
+      document.cookie = 'auth_token=; path=/; max-age=0; samesite=lax'
     }
   }
 
@@ -114,12 +114,34 @@ export class AuthService {
   static logout(): void {
     this.removeToken()
     if (typeof window !== 'undefined') {
+      // Use router.push instead of direct location change for better UX
       window.location.href = '/sign-in'
     }
   }
 
   static isAuthenticated(): boolean {
     return !!this.getToken()
+  }
+
+  static syncTokenToCookie(): void {
+    if (typeof window !== 'undefined') {
+      const token = this.getToken()
+      if (token) {
+        // Ensure cookie is set for middleware
+        document.cookie = `auth_token=${token}; path=/; max-age=${7 * 24 * 60 * 60}; samesite=lax`
+      }
+    }
+  }
+
+  static getCookieToken(): string | null {
+    if (typeof window === 'undefined') return null
+    const cookies = document.cookie.split(';')
+    const authCookie = cookies.find(cookie => cookie.trim().startsWith('auth_token='))
+    return authCookie ? authCookie.split('=')[1] : null
+  }
+
+  static isAuthenticatedWithCookie(): boolean {
+    return !!(this.getToken() || this.getCookieToken())
   }
 }
 

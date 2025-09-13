@@ -383,7 +383,7 @@ export function ReportsTable() {
                             )}
                             {report.mapArea && (
                               <div className="text-xs text-gray-500 truncate">
-                                Area: {report.mapArea}
+                                Area: {typeof report.mapArea === 'string' ? report.mapArea : JSON.stringify(report.mapArea)}
                               </div>
                             )}
                           </div>
@@ -502,7 +502,7 @@ export function ReportsTable() {
                                   {report.mapArea && (
                                     <div>
                                       <p className="text-xs font-medium text-gray-500">Map Area</p>
-                                      <p className="text-sm">{report.mapArea}</p>
+                                      <p className="text-sm">{typeof report.mapArea === 'string' ? report.mapArea : JSON.stringify(report.mapArea)}</p>
                                     </div>
                                   )}
                                   {report.latitude && report.longitude && (

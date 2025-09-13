@@ -156,6 +156,14 @@ export function CreateReportModal({ onReportCreated }: CreateReportModalProps) {
     if (!formData.location.trim() && (!formData.latitude || !formData.longitude)) {
       newErrors.location = 'Either location name or coordinates are required'
     }
+
+    if (formData.latitude && !formData.longitude) {
+      newErrors.longitude = 'Longitude is required when latitude is provided'
+    }
+    
+    if (formData.longitude && !formData.latitude) {
+      newErrors.latitude = 'Latitude is required when longitude is provided'
+    }
     
     if (formData.latitude && (isNaN(Number(formData.latitude)) || Number(formData.latitude) < -90 || Number(formData.latitude) > 90)) {
       newErrors.latitude = 'Valid latitude between -90 and 90 is required'
@@ -180,6 +188,12 @@ export function CreateReportModal({ onReportCreated }: CreateReportModalProps) {
 
     if (!user?.id) {
       setErrors({ general: 'User authentication required' })
+      return
+    }
+
+    // Check if user has permission to create reports
+    if (!user.role || !['leader', 'admin', 'public'].includes(user.role)) {
+      setErrors({ general: 'You do not have permission to create reports. Please contact an administrator.' })
       return
     }
 
