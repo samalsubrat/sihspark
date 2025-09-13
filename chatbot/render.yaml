@@ -1,0 +1,9 @@
+# Render Deployment Configuration
+
+## Environment Variables
+GEMINI_API_KEY=your_actual_gemini_api_key_here
+FLASK_ENV=production
+PORT=10000
+
+## Python Version
+python-3.11.0
