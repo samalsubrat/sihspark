@@ -24,6 +24,9 @@ export default function Home() {
               <Link href="/news">
                 <Button variant="ghost">News</Button>
               </Link>
+              <Link href="/report">
+                <Button variant="ghost">Report Issue</Button>
+              </Link>
               <Link href="/sign-in">
                 <Button variant="ghost">Sign In</Button>
               </Link>
@@ -58,6 +61,48 @@ export default function Home() {
                 </Button>
               </Link>
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Community Reporting Section */}
+      <section className="py-16 bg-blue-50/80">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="max-w-4xl mx-auto text-center">
+            <h2 className="text-3xl font-bold text-gray-900 mb-4">
+              Community Water Quality Reporting
+            </h2>
+            <p className="text-lg text-gray-600 mb-8">
+              Help protect your community by reporting water quality issues. Anyone can contribute to safer water for everyone.
+            </p>
+            <div className="grid md:grid-cols-3 gap-8 mb-8">
+              <div className="text-center">
+                <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mx-auto mb-4">
+                  <Droplets className="h-6 w-6 text-blue-600" />
+                </div>
+                <h3 className="font-semibold mb-2">Quick Reporting</h3>
+                <p className="text-sm text-gray-600">Simple form to report water issues in minutes</p>
+              </div>
+              <div className="text-center">
+                <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center mx-auto mb-4">
+                  <Users className="h-6 w-6 text-green-600" />
+                </div>
+                <h3 className="font-semibold mb-2">Anonymous & Safe</h3>
+                <p className="text-sm text-gray-600">Report issues anonymously with just your email</p>
+              </div>
+              <div className="text-center">
+                <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center mx-auto mb-4">
+                  <BarChart3 className="h-6 w-6 text-purple-600" />
+                </div>
+                <h3 className="font-semibold mb-2">Community Impact</h3>
+                <p className="text-sm text-gray-600">Help build a comprehensive water quality database</p>
+              </div>
+            </div>
+            <Link href="/report">
+              <Button size="lg" className="bg-blue-600 hover:bg-blue-700">
+                Report Water Quality Issue
+              </Button>
+            </Link>
           </div>
         </div>
       </section>
@@ -222,18 +267,23 @@ export default function Home() {
               <CardHeader>
                 <CardTitle className="flex items-center">
                   <Phone className="h-6 w-6 text-green-500 mr-3" />
-                  Public Access
+                  Community Reporting
                 </CardTitle>
                 <CardDescription>
-                  Keep communities informed about water quality
+                  Help your community by reporting water quality issues
                 </CardDescription>
               </CardHeader>
               <CardContent>
                 <ul className="text-sm text-gray-600 space-y-2">
-                  <li>• Public status dashboard</li>
-                  <li>• Community reporting</li>
-                  <li>• Emergency contact system</li>
+                  <li>• Anonymous issue reporting</li>
+                  <li>• Community water monitoring</li>
+                  <li>• Quick reporting process</li>
                 </ul>
+                <Link href="/report" className="block mt-4">
+                  <Button variant="outline" size="sm" className="w-full">
+                    Report Water Issue
+                  </Button>
+                </Link>
               </CardContent>
             </Card>
           </div>
