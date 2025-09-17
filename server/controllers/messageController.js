@@ -1,7 +1,6 @@
 import { sendSMSWrapper } from "../lib/sms.js";
 import { sendWhatsAppWrapper } from "../lib/whatapp.js";
 
-// Helper to validate E.164 phone number
 function isValidPhoneNumber(number) {
   return typeof number === "string" && /^\+\d{10,15}$/.test(number);
 }
@@ -18,7 +17,6 @@ export const sendMessageController = async (req, res) => {
       return res.status(400).json({ message: "Invalid phone number format. Use +<countrycode><number>" });
     }
 
-    // Type can be: "sms", "whatsapp", or "both"
     if (!["sms", "whatsapp", "both"].includes(type)) {
       return res.status(400).json({ message: "Invalid type. Use sms, whatsapp, or both" });
     }

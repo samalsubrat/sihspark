@@ -52,6 +52,8 @@ export function HotspotsMap() {
   const [riskFilter, setRiskFilter] = useState<string>("all");
   const [zoom, setZoom] = useState(5);
   const [map, setMap] = useState<google.maps.Map | null>(null);
+  const [center, setCenter] = useState({ lat: 20.5937, lng: 78.9629 }); // 🟢 controlled center
+
   const BACKEND_API_URL =
     process.env.NODE_ENV === "production"
       ? "https://sihspark.onrender.com/api/v1"
@@ -155,12 +157,18 @@ export function HotspotsMap() {
                   height: "400px",
                   borderRadius: "12px",
                 }}
-                center={{ lat: 20.5937, lng: 78.9629 }}
+                center={center} // 🟢 controlled
                 zoom={zoom}
                 onLoad={(mapInstance) => setMap(mapInstance)}
                 onZoomChanged={() => {
+                  if (map) setZoom(map.getZoom() || 5);
+                }}
+                onDragEnd={() => {
                   if (map) {
-                    setZoom(map.getZoom() || 5);
+                    const newCenter = map.getCenter();
+                    if (newCenter) {
+                      setCenter({ lat: newCenter.lat(), lng: newCenter.lng() });
+                    }
                   }
                 }}
               >
@@ -194,7 +202,13 @@ export function HotspotsMap() {
                             lng: hotspot.longitude,
                           }}
                           icon={getMarkerColor(hotspot.riskLevel)}
-                          onClick={() => setSelectedHotspot(hotspot)}
+                          onClick={() => {
+                            setSelectedHotspot(hotspot);
+                            setCenter({
+                              lat: hotspot.latitude!,
+                              lng: hotspot.longitude!,
+                            }); // 🟢 optional: recenter when hotspot clicked
+                          }}
                         />
                       )
                   )}
@@ -247,7 +261,16 @@ export function HotspotsMap() {
               className={`cursor-pointer transition-all hover:shadow-md ${
                 selectedHotspot?.id === hotspot.id ? "ring-2 ring-blue-500" : ""
               }`}
-              onClick={() => setSelectedHotspot(hotspot)}
+              onClick={() => {
+                setSelectedHotspot(hotspot);
+                if (hotspot.latitude && hotspot.longitude) {
+                  setCenter({
+                    lat: hotspot.latitude,
+                    lng: hotspot.longitude,
+                  });
+                  setZoom(10); // zoom closer when selecting
+                }
+              }}
             >
               <CardContent className="p-4">
                 <div className="flex items-start justify-between mb-2">
