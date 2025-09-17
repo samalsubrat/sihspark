@@ -5,7 +5,15 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { FileText, TestTube, Droplets, AlertTriangle } from "lucide-react"
 import { ReportsService } from "@/lib/reports"
-import { WaterTestsService } from "@/lib/water-tests"
+import { WaterTestsService, WaterTest } from "@/lib/water-tests"
+
+interface Report {
+  id: string
+  name: string
+  location?: string
+  date: string
+  comment?: string
+}
 
 interface ActivityItem {
   id: string
@@ -65,7 +73,7 @@ export function RecentActivity() {
           const reportsResponse = await ReportsService.getReports()
           const reports = reportsResponse.reports || []
           
-          reports.slice(0, 3).forEach((report: any) => {
+          reports.slice(0, 3).forEach((report: Report) => {
             allActivities.push({
               id: `report-${report.id}`,
               type: "report",
@@ -86,7 +94,7 @@ export function RecentActivity() {
         try {
           const waterTests = await WaterTestsService.getWaterTests()
           
-          waterTests.slice(0, 3).forEach((test: any) => {
+          waterTests.slice(0, 3).forEach((test: WaterTest) => {
             allActivities.push({
               id: `test-${test.id}`,
               type: "water-test",

@@ -185,13 +185,9 @@ export function KpiRow() {
   }
 
   const yesterdayReports = Math.max(0, stats.todayReports - 2) // Simulate yesterday data
-  const yesterdayTests = Math.max(0, stats.todayWaterTests - 1)
   const reportsChange = yesterdayReports > 0 ? 
     `${stats.todayReports > yesterdayReports ? '+' : ''}${Math.round(((stats.todayReports - yesterdayReports) / yesterdayReports) * 100)}% from yesterday` :
     `${stats.todayReports} new today`
-  const testsChange = yesterdayTests > 0 ? 
-    `${stats.todayWaterTests > yesterdayTests ? '+' : ''}${Math.round(((stats.todayWaterTests - yesterdayTests) / yesterdayTests) * 100)}% from yesterday` :
-    `${stats.todayWaterTests} new today`
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

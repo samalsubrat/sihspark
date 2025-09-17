@@ -61,7 +61,7 @@ export function Charts() {
         } catch (error) {
           console.log('Using demo data for reports chart:', error)
           // Add some demo data
-          weeklyChartData.forEach((day, index) => {
+          weeklyChartData.forEach((day) => {
             day.reports = Math.floor(Math.random() * 10) + 3
           })
         }
@@ -86,7 +86,7 @@ export function Charts() {
         } catch (error) {
           console.log('Using demo data for water tests chart:', error)
           // Add some demo data
-          weeklyChartData.forEach((day, index) => {
+          weeklyChartData.forEach((day) => {
             day.tests = Math.floor(Math.random() * 8) + 2
           })
           qualityDistribution = { good: 18, medium: 7, high: 3 }
