@@ -4,7 +4,7 @@ import { sendSMSWrapper } from "../lib/sms.js";
 const createReport = async (req, res) => {
   try {
     // Check if user is authenticated and has permission
-    if (!req.user || !["leader", "admin", "public"].includes(req.user.role)) {
+    if (!req.user || !["leader", "admin", "public", "asha"].includes(req.user.role)) {
       return res.status(403).json({ message: "forbidden" });
     }
 
@@ -87,7 +87,7 @@ Map Area: ${mapArea}`;
 
 const listLeaderReports = async (req, res) => {
   try {
-    if (!req.user || !["leader", "admin"].includes(req.user.role)) {
+    if (!req.user || !["leader", "admin", "asha", "public"].includes(req.user.role)) {
       return res.status(403).json({ message: "forbidden" });
     }
 
