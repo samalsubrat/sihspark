@@ -21,6 +21,7 @@ import gamifiedRoutes from "./routes/gamifiedRoutes.js";
 import adminRoutes from "./routes/adminRoutes.js";
 import profileRoutes from "./routes/profileRoutes.js";
 import alertRoutes from "./routes/alertRoutes.js";
+import messageRoutes from "./routes/messageRoutes.js";
 
 app.use("/api/v1/auth", authRoutes);
 app.use("/api/v1/reports", reportRoutes);
@@ -31,6 +32,7 @@ app.use("/api/v1/gamified", gamifiedRoutes);
 app.use("/api/v1/admin", adminRoutes);
 app.use("/api/v1/profile", profileRoutes);
 app.use("/api/v1/alerts", alertRoutes);
+app.use("/api/v1/message", messageRoutes);
 
 const port = process.env.PORT || 8080;
 
