@@ -23,6 +23,7 @@
     "express": "^4.18.2",
     "jsonwebtoken": "^9.0.2",
     "node-fetch": "^3.3.2",
+    "qrcode": "^1.5.4",
     "twilio": "^5.9.0"
   },
   "repository": {

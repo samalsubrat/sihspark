@@ -41,7 +41,7 @@ const listLeaderAlerts = async (req, res) => {
     });
 
     return res.status(200).json({
-      alerts,
+      alerts: alerts.map(alert => ({ ...alert, type: 'leader' })),
       nextCursor: alerts.length === take ? alerts[alerts.length - 1].id : null,
     });
   } catch (error) {
@@ -84,7 +84,7 @@ const listGlobalAlerts = async (req, res) => {
     });
 
     return res.status(200).json({
-      alerts,
+      alerts: alerts.map(alert => ({ ...alert, type: 'global' })),
       nextCursor: alerts.length === take ? alerts[alerts.length - 1].id : null,
     });
   } catch (error) {

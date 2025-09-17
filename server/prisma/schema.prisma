@@ -149,3 +149,18 @@ model Testimonial {
   user       User?    @relation(fields: [userId], references: [id])
   createdAt  DateTime @default(now())
 }
+
+model WaterbodyHealthCard {
+  id                String   @id @default(uuid())
+  waterbodyName     String
+  waterbodyId       String?  @unique
+  location          String
+  latitude          Float?
+  longitude         Float?
+  qrCode            String   @unique
+  riskScore         Float    // 0-100 AI-based risk score
+  lastTestedDate    DateTime?
+  contaminationHistory Json? // Array of contamination events
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+}
