@@ -1,0 +1,13 @@
+
+<svg width="16" height="16" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#3b82f6;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#1d4ed8;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  <rect width="16" height="16" rx="3.2" fill="url(#grad1)"/>
+  <circle cx="4.8" cy="4.8" r="2.4" fill="white" opacity="0.9"/>
+  <path d="M3.2 9.6 L6.4 12.8 L12.8 6.4" stroke="white" stroke-width="0.8" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+  <text x="8" y="14.4" font-family="Arial, sans-serif" font-size="1.92" font-weight="bold" text-anchor="middle" fill="white">SIH</text>
+</svg>
