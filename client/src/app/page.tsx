@@ -1,12 +1,15 @@
 'use client'
 
 import Link from "next/link"
+import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Droplets, Shield, BarChart3, Users, Globe, Phone, GraduationCap, Newspaper } from "lucide-react"
+import { Droplets, Shield, BarChart3, Users, Globe, Phone, GraduationCap, Newspaper, Menu, X } from "lucide-react"
 import ChatbotOverlay from "@/components/chatbot-overlay"
 
 export default function Home() {
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
       {/* Header */}
@@ -17,7 +20,9 @@ export default function Home() {
               <Droplets className="h-8 w-8 text-blue-600 mr-3" />
               <h1 className="text-xl font-bold text-gray-900">SPARK</h1>
             </div>
-            <div className="flex items-center gap-4">
+            
+            {/* Desktop Navigation */}
+            <div className="hidden md:flex items-center gap-4">
               <Link href="/education">
                 <Button variant="ghost">Education</Button>
               </Link>
@@ -34,7 +39,59 @@ export default function Home() {
                 <Button>Get Started</Button>
               </Link>
             </div>
+
+            {/* Mobile menu button */}
+            <div className="md:hidden">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                aria-label="Toggle menu"
+              >
+                {mobileMenuOpen ? (
+                  <X className="h-6 w-6" />
+                ) : (
+                  <Menu className="h-6 w-6" />
+                )}
+              </Button>
+            </div>
           </div>
+
+          {/* Mobile Navigation */}
+          {mobileMenuOpen && (
+            <div className="md:hidden">
+              <div className="px-2 pt-2 pb-3 space-y-1 bg-white border-t">
+                <Link href="/education" onClick={() => setMobileMenuOpen(false)}>
+                  <Button variant="ghost" className="w-full justify-start">
+                    <GraduationCap className="h-4 w-4 mr-2" />
+                    Education
+                  </Button>
+                </Link>
+                <Link href="/news" onClick={() => setMobileMenuOpen(false)}>
+                  <Button variant="ghost" className="w-full justify-start">
+                    <Newspaper className="h-4 w-4 mr-2" />
+                    News
+                  </Button>
+                </Link>
+                <Link href="/report" onClick={() => setMobileMenuOpen(false)}>
+                  <Button variant="ghost" className="w-full justify-start">
+                    <Phone className="h-4 w-4 mr-2" />
+                    Report Issue
+                  </Button>
+                </Link>
+                <Link href="/sign-in" onClick={() => setMobileMenuOpen(false)}>
+                  <Button variant="ghost" className="w-full justify-start">
+                    Sign In
+                  </Button>
+                </Link>
+                <Link href="/sign-up" onClick={() => setMobileMenuOpen(false)}>
+                  <Button className="w-full">
+                    Get Started
+                  </Button>
+                </Link>
+              </div>
+            </div>
+          )}
         </div>
       </header>
 
