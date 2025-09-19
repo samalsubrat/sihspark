@@ -7,6 +7,9 @@ requires-python = ">=3.11"
 dependencies = [
     "dotenv>=0.9.9",
     "flask>=3.1.2",
+    "langchain>=0.3.27",
     "psycopg2>=2.9.10",
     "requests>=2.32.5",
+    "semantic-text-splitter>=0.28.0",
+    "sqlalchemy>=2.0.43",
 ]
