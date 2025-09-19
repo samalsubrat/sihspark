@@ -6,3 +6,5 @@ joblib
 flask
 gunicorn
 setuptools
+wheel
+pytz
