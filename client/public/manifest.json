@@ -1,7 +1,7 @@
 {
-  "name": "SIH Spark - Water Quality Management",
-  "short_name": "SIH Spark",
-  "description": "Smart India Hackathon Project - Water Quality Management System",
+  "name": "SPARK - Water Quality Monitoring",
+  "short_name": "SPARK",
+  "description": "AI-powered water quality monitoring and waterborne disease prevention platform with real-time alerts and predictions",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#ffffff",
@@ -9,7 +9,11 @@
   "orientation": "portrait-primary",
   "scope": "/",
   "lang": "en",
-  "categories": ["health", "environment", "utilities"],
+  "categories": ["health", "environment", "utilities", "science", "productivity"],
+  "prefer_related_applications": false,
+  "dir": "ltr",
+  "iarc_rating_id": "e84b072d-71b3-4d3e-86ae-31a8ce4e53b7",
+  "related_applications": [],
   "icons": [
     {
       "src": "/icons/icon-72x72.png",
@@ -65,51 +69,92 @@
       "src": "/screenshots/desktop-screenshot.png",
       "sizes": "1280x720",
       "type": "image/png",
-      "form_factor": "wide"
+      "form_factor": "wide",
+      "label": "SPARK Dashboard - Desktop View"
     },
     {
       "src": "/screenshots/mobile-screenshot.png",
       "sizes": "390x844",
       "type": "image/png",
-      "form_factor": "narrow"
+      "form_factor": "narrow",
+      "label": "SPARK Dashboard - Mobile View"
     }
   ],
   "shortcuts": [
     {
-      "name": "Water Tests",
-      "short_name": "Tests",
-      "description": "View water quality tests",
-      "url": "/dashboard/water-tests",
+      "name": "Water Quality Test",
+      "short_name": "Water Test",
+      "description": "Perform AI-powered water quality analysis",
+      "url": "/waterquality",
       "icons": [
         {
           "src": "/icons/icon-96x96.png",
-          "sizes": "96x96"
+          "sizes": "96x96",
+          "purpose": "any"
         }
       ]
     },
     {
-      "name": "Reports",
+      "name": "Disease Prediction",
+      "short_name": "Predict",
+      "description": "Predict waterborne diseases using AI",
+      "url": "/dashboard/waterpredict",
+      "icons": [
+        {
+          "src": "/icons/icon-96x96.png",
+          "sizes": "96x96",
+          "purpose": "any"
+        }
+      ]
+    },
+    {
+      "name": "Reports Dashboard",
       "short_name": "Reports",
-      "description": "View water quality reports",
+      "description": "View water quality reports and analytics",
       "url": "/dashboard/reports",
       "icons": [
         {
           "src": "/icons/icon-96x96.png",
-          "sizes": "96x96"
+          "sizes": "96x96",
+          "purpose": "any"
         }
       ]
     },
     {
-      "name": "Predictions",
-      "short_name": "Predict",
-      "description": "Water quality predictions",
-      "url": "/dashboard/predictions",
+      "name": "AI Chatbot",
+      "short_name": "Chat",
+      "description": "Get instant help from SPARK AI assistant",
+      "url": "/?chat=open",
       "icons": [
         {
           "src": "/icons/icon-96x96.png",
-          "sizes": "96x96"
+          "sizes": "96x96",
+          "purpose": "any"
         }
       ]
     }
-  ]
+  ],
+  "edge_side_panel": {
+    "preferred_width": 480
+  },
+  "handle_links": "preferred",
+  "launch_handler": {
+    "client_mode": "focus-existing"
+  },
+  "protocol_handlers": [
+    {
+      "protocol": "web+spark",
+      "url": "/handle?type=%s"
+    }
+  ],
+  "share_target": {
+    "action": "/share",
+    "method": "POST",
+    "enctype": "application/json",
+    "params": {
+      "title": "title",
+      "text": "text",
+      "url": "url"
+    }
+  }
 }
