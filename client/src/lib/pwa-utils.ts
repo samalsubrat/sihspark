@@ -28,7 +28,7 @@ export class PWAUtils {
     return (
       window.matchMedia('(display-mode: standalone)').matches ||
       window.matchMedia('(display-mode: fullscreen)').matches ||
-      // @ts-ignore
+      // @ts-expect-error - navigator.standalone is iOS specific
       window.navigator.standalone === true
     )
   }
@@ -164,7 +164,7 @@ export class PWAUtils {
       return { online: true }
     }
 
-    // @ts-ignore
+    // @ts-expect-error - Network Information API types are not available in all browsers
     const connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection
 
     return {
@@ -323,10 +323,10 @@ export class PWAUtils {
   /**
    * Track PWA events for analytics
    */
-  static trackPWAEvent(event: string, data?: any) {
+  static trackPWAEvent(event: string, data?: Record<string, unknown>) {
     // Integration with analytics (Google Analytics, etc.)
     if (typeof window !== 'undefined' && 'gtag' in window) {
-      // @ts-ignore
+      // @ts-expect-error - gtag is a global function when Google Analytics is loaded
       window.gtag('event', event, {
         event_category: 'PWA',
         custom_parameter: data,

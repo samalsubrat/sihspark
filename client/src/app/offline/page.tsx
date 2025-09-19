@@ -50,11 +50,11 @@ export default function OfflinePage() {
 
         {/* Content */}
         <h2 className="text-2xl font-bold text-gray-900 mb-4">
-          You're Offline
+          You&apos;re Offline
         </h2>
         
         <p className="text-gray-600 mb-6 leading-relaxed">
-          It looks like you've lost your internet connection. Don't worry - some features 
+          It looks like you&apos;ve lost your internet connection. Don&apos;t worry - some features 
           of SPARK are still available offline!
         </p>
 
