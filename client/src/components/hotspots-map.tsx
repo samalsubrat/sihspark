@@ -55,9 +55,7 @@ export function HotspotsMap() {
   const [center, setCenter] = useState({ lat: 20.5937, lng: 78.9629 }); // 🟢 controlled center
 
   const BACKEND_API_URL =
-    process.env.NODE_ENV === "production"
-      ? "https://sihspark.onrender.com/api/v1"
-      : "http://localhost:8080/api/v1";
+    "https://sihspark.onrender.com/api/v1"
 
   // Load Google Maps API with visualization library
   const { isLoaded } = useJsApiLoader({
@@ -258,9 +256,8 @@ export function HotspotsMap() {
           {filteredHotspots.map((hotspot) => (
             <Card
               key={hotspot.id}
-              className={`cursor-pointer transition-all hover:shadow-md ${
-                selectedHotspot?.id === hotspot.id ? "ring-2 ring-blue-500" : ""
-              }`}
+              className={`cursor-pointer transition-all hover:shadow-md ${selectedHotspot?.id === hotspot.id ? "ring-2 ring-blue-500" : ""
+                }`}
               onClick={() => {
                 setSelectedHotspot(hotspot);
                 if (hotspot.latitude && hotspot.longitude) {

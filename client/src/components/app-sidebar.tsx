@@ -17,6 +17,7 @@ import {
   LogOut,
   Settings,
   ChevronUp,
+  Shield,
 } from "lucide-react"
 import { useAuth } from "@/contexts/auth-context"
 import {
@@ -48,6 +49,7 @@ const navigationItems = [
   { name: "Waterbody Reports", href: "/dashboard/reports", icon: FileText },
   { name: "Medical Tests", href: "/dashboard/medical-tests", icon: TestTube },
   { name: "Waterbody Tests", href: "/dashboard/water-tests", icon: Droplets },
+  { name: "Health Cards", href: "/dashboard/health-cards", icon: Shield },
   { name: "Predictions", href: "/dashboard/predictions", icon: TrendingUp },
   { name: "Disease Predictor", href: "/dashboard/waterpredict", icon: TestTubeDiagonal },
   { name: "Role Management", href: "/dashboard/role-management", icon: Users },
