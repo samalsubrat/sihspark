@@ -163,8 +163,10 @@ export default function PWAInstaller() {
       if (banner) banner.remove()
       
       // Track install event
-      if (typeof gtag !== 'undefined') {
-        gtag('event', 'pwa_install', {
+      // @ts-expect-error - gtag is a global function that may not be available
+      if (typeof window !== 'undefined' && typeof window.gtag !== 'undefined') {
+        // @ts-expect-error - gtag is a global function that may not be available
+        window.gtag('event', 'pwa_install', {
           event_category: 'engagement',
           event_label: 'pwa_installed'
         })
