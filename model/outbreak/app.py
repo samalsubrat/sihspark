@@ -62,8 +62,24 @@ def predict():
 # --- Health Check Endpoint ---
 @app.route('/', methods=['GET'])
 def health_check():
-    return "AI Prediction Server is running!"
+    return jsonify({
+        "status": "healthy",
+        "service": "Outbreak Prediction Model",
+        "model_loaded": model is not None,
+        "timestamp": pd.Timestamp.now(tz='Asia/Kolkata').isoformat()
+    })
+
+@app.route('/health', methods=['GET'])
+def health():
+    return jsonify({
+        "status": "healthy",
+        "service": "Outbreak Prediction Model",
+        "model_loaded": model is not None,
+        "timestamp": pd.Timestamp.now(tz='Asia/Kolkata').isoformat()
+    })
 
 # --- Step 4: Run the Flask App ---
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000, debug=True)
+    import os
+    port = int(os.environ.get('PORT', 5000))
+    app.run(host='0.0.0.0', port=port, debug=False)
