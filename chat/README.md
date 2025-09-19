@@ -40,7 +40,7 @@ This project provides an API wrapper for using Ollama with a Retrieval-Augmented
     *   **Description:** Receives a user query, retrieves relevant medical data, and generates a response using the configured Ollama model.
     *   **Request Body:** JSON object with the following fields:
         *   `query`: The user's medical query.
-        *   `info`: Additional contextual information (e.g., user profile, regional data).
+        *   `user_id`: uid of the user.
     *   **Process:**
         1.  The `query_and_embed` function is called to retrieve relevant medical data based on the user's query.
         2.  A prompt is constructed including the system prompt, retrieved context, additional information, and the user's query.
