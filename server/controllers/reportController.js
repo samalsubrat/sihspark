@@ -1,10 +1,11 @@
 import prisma from "../lib/db.js";
 import { sendSMSWrapper } from "../lib/sms.js";
+import { sendWhatsAppWrapper } from "../lib/whatapp.js";
 
 const createReport = async (req, res) => {
   try {
     // Check if user is authenticated and has permission
-    if (!req.user || !["leader", "admin", "public"].includes(req.user.role)) {
+    if (!req.user || !["leader", "admin", "public", "asha"].includes(req.user.role)) {
       return res.status(403).json({ message: "forbidden" });
     }
 
@@ -19,7 +20,7 @@ const createReport = async (req, res) => {
       photoUrl,
       comment,
     } = req.body;
-    
+
     // Required fields validation
     if (!name || !date) {
       return res.status(400).json({
@@ -30,7 +31,8 @@ const createReport = async (req, res) => {
     // Either location or coordinates must be provided
     if (!location && (!latitude || !longitude)) {
       return res.status(400).json({
-        message: "Either location name or coordinates (latitude, longitude) are required",
+        message:
+          "Either location name or coordinates (latitude, longitude) are required",
       });
     }
 
@@ -54,26 +56,29 @@ const createReport = async (req, res) => {
     // SMS notification to the local leader about this report should be sent here (to be implemented).
 
     // Get the user who created the report for SMS notification
-    const reportCreator = await prisma.user.findUnique({ where: { id: actualLeaderId } });
+    const reportCreator = await prisma.user.findUnique({
+      where: { id: actualLeaderId },
+    });
     if (reportCreator && reportCreator.number) {
       const formattedDate = new Date(date).toLocaleString("en-IN", {
-    weekday: "short",   // Thu
-    day: "2-digit",     // 11
-    month: "short",     // Sep
-    year: "numeric",    // 2025
-    hour: "2-digit",    // 03
-    minute: "2-digit",  // 30
-    hour12: true,       // AM/PM
-    timeZone: "Asia/Kolkata", // Indian time zone
-  });
+        weekday: "short", // Thu
+        day: "2-digit", // 11
+        month: "short", // Sep
+        year: "numeric", // 2025
+        hour: "2-digit", // 03
+        minute: "2-digit", // 30
+        hour12: true, // AM/PM
+        timeZone: "Asia/Kolkata", // Indian time zone
+      });
 
-  const smsMessage = `🚨 New Report Created 🚨
+      const notificationMessage = `🚨 New Report Created 🚨
 Name: ${name}
 Location: ${location}
 Date: ${formattedDate}
 Map Area: ${mapArea}`;
 
-      await sendSMSWrapper(reportCreator.number, smsMessage);
+      await sendSMSWrapper(reportCreator.number, notificationMessage);
+      await sendWhatsAppWrapper(reportCreator.number, notificationMessage);
     } else {
       console.warn(`⚠️ User ${actualLeaderId} has no phone number saved.`);
     }
@@ -87,7 +92,7 @@ Map Area: ${mapArea}`;
 
 const listLeaderReports = async (req, res) => {
   try {
-    if (!req.user || !["leader", "admin"].includes(req.user.role)) {
+    if (!req.user || !["leader", "admin", "asha", "public"].includes(req.user.role)) {
       return res.status(403).json({ message: "forbidden" });
     }
 
@@ -132,7 +137,7 @@ const updateReport = async (req, res) => {
 
     const report = await prisma.report.findUnique({ where: { id } });
     if (!report) return res.status(404).json({ message: "report not found" });
-    
+
     // Both admins and leaders can update any report
     // No additional permission checks needed
 

@@ -1,6 +1,8 @@
 import prisma from "../lib/db.js";
 import { sendSMSWrapper } from "../lib/sms.js";
 import { createOrUpdateHealthCard } from "./healthCardController.js";
+import { sendWhatsAppWrapper } from "../lib/whatapp.js";
+
 
 const createWaterTest = async (req, res) => {
   try {
@@ -66,6 +68,11 @@ const createWaterTest = async (req, res) => {
       timeZone: "Asia/Kolkata", // Indian time zone
     });
 
+    // ✅ Helper to validate E.164 phone number
+    function isValidPhoneNumber(number) {
+      return typeof number === "string" && /^\+\d{10,15}$/.test(number);
+    }
+
     // ================= ALERT HANDLING =================
     if (normalizedQuality === "medium") {
       const leaders = await prisma.user.findMany({
@@ -84,12 +91,16 @@ const createWaterTest = async (req, res) => {
       }
 
       for (const leader of leaders) {
-        if (leader.number) {
-          const smsMessage = `⚠️ Medium Water Quality Alert
+        if (leader.number && isValidPhoneNumber(leader.number)) {
+          const alertMessage = `⚠️ Medium Water Quality Alert
 Waterbody: ${record.waterbodyName}
 Location: ${location}
 Date: ${formattedDate}`;
-          await sendSMSWrapper(leader.number, smsMessage);
+
+          await sendSMSWrapper(leader.number, alertMessage);
+          await sendWhatsAppWrapper(leader.number, alertMessage);
+        } else {
+          console.warn(`Skipping invalid leader number: ${leader.number}`);
         }
       }
     } else if (normalizedQuality === "high") {
@@ -105,12 +116,16 @@ Date: ${formattedDate}`;
       });
 
       for (const user of users) {
-        if (user.number) {
-          const smsMessage = `🚨 HIGH RISK ALERT
+        if (user.number && isValidPhoneNumber(user.number)) {
+          const alertMessage = `🚨 HIGH RISK ALERT
 Waterbody: ${record.waterbodyName}
 Location: ${location}
 Date: ${formattedDate}`;
-          await sendSMSWrapper(user.number, smsMessage);
+
+          await sendSMSWrapper(user.number, alertMessage);
+          await sendWhatsAppWrapper(user.number, alertMessage);
+        } else {
+          console.warn(`Skipping invalid user number: ${user.number}`);
         }
       }
     }
@@ -218,6 +233,7 @@ const listAllWaterTests = async (req, res) => {
     return res.status(500).json({ message: "Internal Server Error" });
   }
 };
+
 
 const getUserWaterTests = async (req, res) => {
   try {
