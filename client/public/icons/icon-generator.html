@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PWA Icon Generator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .icon-preview {
+            display: inline-block;
+            margin: 10px;
+            text-align: center;
+        }
+        canvas {
+            border: 1px solid #ccc;
+            margin: 5px;
+        }
+        button {
+            background: #3b82f6;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background: #2563eb;
+        }
+    </style>
+</head>
+<body>
+    <h1>PWA Icon Generator</h1>
+    <p>This page generates PWA icons for SIH Spark. Right-click on each icon and save as PNG.</p>
+    
+    <div id="icons-container"></div>
+    
+    <button onclick="generateAllIcons()">Generate All Icons</button>
+    <button onclick="downloadAllIcons()">Download All Icons</button>
+
+    <script>
+        const iconSizes = [16, 32, 72, 96, 128, 144, 152, 192, 384, 512];
+        
+        function createIcon(size) {
+            const canvas = document.createElement('canvas');
+            canvas.width = size;
+            canvas.height = size;
+            const ctx = canvas.getContext('2d');
+            
+            // Create gradient background
+            const gradient = ctx.createLinearGradient(0, 0, size, size);
+            gradient.addColorStop(0, '#3b82f6');
+            gradient.addColorStop(1, '#1d4ed8');
+            
+            // Draw rounded rectangle background
+            const cornerRadius = size * 0.2;
+            ctx.fillStyle = gradient;
+            ctx.beginPath();
+            ctx.roundRect(0, 0, size, size, cornerRadius);
+            ctx.fill();
+            
+            // Draw water drop icon
+            ctx.fillStyle = 'white';
+            ctx.globalAlpha = 0.9;
+            
+            // Water drop shape
+            const centerX = size * 0.5;
+            const centerY = size * 0.4;
+            const dropWidth = size * 0.3;
+            const dropHeight = size * 0.4;
+            
+            ctx.beginPath();
+            ctx.ellipse(centerX, centerY, dropWidth/2, dropHeight/2, 0, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Add "SIH" text
+            ctx.fillStyle = 'white';
+            ctx.font = `bold ${size * 0.12}px Arial`;
+            ctx.textAlign = 'center';
+            ctx.fillText('SIH', centerX, centerY + size * 0.15);
+            
+            return canvas;
+        }
+        
+        function generateAllIcons() {
+            const container = document.getElementById('icons-container');
+            container.innerHTML = '';
+            
+            iconSizes.forEach(size => {
+                const iconDiv = document.createElement('div');
+                iconDiv.className = 'icon-preview';
+                
+                const canvas = createIcon(size);
+                const label = document.createElement('div');
+                label.textContent = `${size}x${size}`;
+                
+                iconDiv.appendChild(canvas);
+                iconDiv.appendChild(label);
+                container.appendChild(iconDiv);
+            });
+        }
+        
+        function downloadAllIcons() {
+            iconSizes.forEach(size => {
+                const canvas = createIcon(size);
+                const link = document.createElement('a');
+                link.download = `icon-${size}x${size}.png`;
+                link.href = canvas.toDataURL();
+                link.click();
+            });
+        }
+        
+        // Generate icons on page load
+        window.onload = generateAllIcons;
+    </script>
+</body>
+</html>
