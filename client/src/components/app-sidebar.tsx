@@ -18,6 +18,7 @@ import {
   Settings,
   ChevronUp,
   Shield,
+  Activity,
 } from "lucide-react"
 import { useAuth } from "@/contexts/auth-context"
 import {
@@ -51,6 +52,7 @@ const navigationItems = [
   { name: "Waterbody Tests", href: "/dashboard/water-tests", icon: Droplets },
   { name: "Health Cards", href: "/dashboard/health-cards", icon: Shield },
   { name: "Predictions", href: "/dashboard/predictions", icon: TrendingUp },
+  { name: "Outbreak Prediction", href: "/dashboard/outbreak-prediction", icon: Activity },
   { name: "Disease Predictor", href: "/dashboard/waterpredict", icon: TestTubeDiagonal },
   { name: "Role Management", href: "/dashboard/role-management", icon: Users },
   { name: "Alerts", href: "/dashboard/alerts", icon: AlertTriangle },
