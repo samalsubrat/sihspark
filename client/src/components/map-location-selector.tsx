@@ -204,15 +204,15 @@ export default function MapLocationSelector({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-4xl max-h-[90vh]">
-        <DialogHeader>
+      <DialogContent className="max-w-4xl max-h-[90vh] overflow-hidden flex flex-col">
+        <DialogHeader className="flex-shrink-0">
           <DialogTitle className="flex items-center gap-2">
             <MapPin className="w-5 h-5" />
             Select Location
           </DialogTitle>
         </DialogHeader>
 
-        <div className="space-y-6">
+        <div className="flex-1 overflow-y-auto space-y-6 pr-2">
           {/* Search Bar */}
           <div className="flex gap-2">
             <div className="flex-1">
@@ -253,7 +253,7 @@ export default function MapLocationSelector({
           <div className="relative">
             <div 
               ref={mapRef}
-              className="w-full h-96 rounded-lg border bg-gray-100"
+              className="w-full h-80 rounded-lg border bg-gray-100"
             >
               {!mapLoaded && (
                 <div className="flex items-center justify-center h-full">
@@ -324,7 +324,7 @@ export default function MapLocationSelector({
           </div>
 
           {/* Action Buttons */}
-          <div className="flex gap-3 pt-4">
+          <div className="flex gap-3 pt-4 border-t bg-white sticky bottom-0">
             <Button
               variant="outline"
               onClick={() => onOpenChange(false)}
