@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { BarChart3, Droplets, Globe, GraduationCap, Newspaper, Phone, Shield, Users } from 'lucide-react'
 import Link from 'next/link'
+import Image from 'next/image'
 import React, { useState } from 'react'
 import ChatbotOverlay from "@/components/chatbot-overlay"
 
@@ -61,7 +62,7 @@ const items = [
 ];
 
 
-const page = () => {
+const HomePage = () => {
     const [activeMetric, setActiveMetric] = useState('turbidity')
 
     const metrics = [
@@ -96,7 +97,7 @@ const page = () => {
                     <div className="text-center text-white">
                         <h1 className="text-5xl md:text-6xl font-bold mb-4">Welcome to JalRakshak</h1>
                         <p className="text-xl md:text-2xl mb-8 max-w-2xl mx-auto">
-                            Protecting India's water resources through technology and community action
+                            Protecting India&apos;s water resources through technology and community action
                         </p>
                         <Link href="/sign-up">
                             <Button size="lg" className="text-lg px-8 py-4 bg-blue-600 hover:bg-blue-700 rounded-full hover:cursor-pointer">
@@ -129,10 +130,12 @@ const page = () => {
                     {/* Card 1 - Daily Monitoring */}
                     <div className="bg-white rounded-2xl shadow-lg overflow-hidden">
                         <div className="aspect-[4/3] bg-gradient-to-br from-blue-100 to-blue-200">
-                            <img
+                            <Image
                                 src="https://images.pexels.com/photos/33684068/pexels-photo-33684068.jpeg"
                                 alt="People monitoring water quality daily"
                                 className="w-full h-full object-cover"
+                                width={400}
+                                height={300}
                             />
                         </div>
                         <div className="p-6 text-center">
@@ -151,10 +154,12 @@ const page = () => {
                     {/* Card 2 - Personalized Health */}
                     <div className="bg-white rounded-2xl shadow-lg overflow-hidden">
                         <div className="aspect-[4/3] bg-gradient-to-br from-orange-100 to-orange-200">
-                            <img
+                            <Image
                                 src="/lake-with-algae.jpg"
                                 alt="Personalized water quality assessment"
                                 className="w-full h-full object-cover"
+                                width={400}
+                                height={300}
                             />
                         </div>
                         <div className="p-6 text-center">
@@ -173,10 +178,12 @@ const page = () => {
                     {/* Card 3 - Community Support */}
                     <div className="bg-white rounded-2xl shadow-lg overflow-hidden">
                         <div className="aspect-[4/3] bg-gradient-to-br from-green-100 to-green-200">
-                            <img
+                            <Image
                                 src="https://images.pexels.com/photos/14039659/pexels-photo-14039659.jpeg"
                                 alt="Community supporting water quality initiatives"
                                 className="w-full h-full object-cover"
+                                width={400}
+                                height={300}
                             />
                         </div>
                         <div className="p-6 text-center">
@@ -212,7 +219,7 @@ const page = () => {
                             <div className="space-y-6 mb-8">
                                 <div>
                                     <h3 className="text-2xl font-semibold text-gray-900 mb-4">
-                                        Let's bring water safety home
+                                        Let&apos;s bring water safety home
                                     </h3>
                                     <p className="text-gray-600 leading-relaxed">
                                         We coordinate with best-in-class water testing laboratories to
@@ -515,7 +522,7 @@ const page = () => {
                     <div className="text-center text-white">
                         <h1 className="text-5xl md:text-6xl font-bold mb-4">Find the support you need to heal</h1>
                         <p className="text-xl md:text-2xl mb-8 max-w-2xl mx-auto">
-                            Protecting India's water resources through technology and community action
+                            Protecting India&apos;s water resources through technology and community action
                         </p>
                         <Link href="/sign-up">
                             <Button size="lg" className="text-lg px-8 py-4 bg-blue-600 hover:bg-blue-700 rounded-full hover:cursor-pointer">
@@ -538,9 +545,10 @@ const page = () => {
                     </div>
                 </div>
             </footer>
+
             <ChatbotOverlay />
         </>
     )
 }
 
-export default page
+export default HomePage

@@ -3,6 +3,7 @@
 import type React from "react"
 import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from "@/components/ui/accordion"
 import { useState, useMemo, useCallback } from "react"
+import Image from "next/image"
 
 type AudienceItem = {
   id: string
@@ -34,22 +35,6 @@ export function AudienceSwitcherCard({ items, initialId, className }: AudienceSw
     [items, activeId],
   )
 
-  const active = items[activeIndex] ?? items[0]
-
-  const onKeyDown = useCallback(
-    (e: React.KeyboardEvent<HTMLUListElement>) => {
-      if (!["ArrowUp", "ArrowDown", "Home", "End"].includes(e.key)) return
-      e.preventDefault()
-      let nextIndex = activeIndex
-      if (e.key === "ArrowUp") nextIndex = (activeIndex - 1 + items.length) % items.length
-      if (e.key === "ArrowDown") nextIndex = (activeIndex + 1) % items.length
-      if (e.key === "Home") nextIndex = 0
-      if (e.key === "End") nextIndex = items.length - 1
-      setActiveId(items[nextIndex].id)
-    },
-    [activeIndex, items],
-  )
-
   return (
     <section
       className={["relative overflow-hidden rounded-xl bg-card text-card-foreground", "min-h-[420px]", className].join(
@@ -60,12 +45,13 @@ export function AudienceSwitcherCard({ items, initialId, className }: AudienceSw
       {/* Right-side images, stacked and crossfading */}
       <div className="absolute inset-0">
         {items.map((item) => (
-          <img
+          <Image
             key={item.id}
             src={item.imageSrc || "/placeholder.svg"}
             alt={item.imageAlt}
+            fill
             className={[
-              "absolute inset-0 h-full w-full object-cover transition-opacity duration-500",
+              "object-cover transition-opacity duration-500",
               item.id === activeId ? "opacity-100" : "opacity-0",
             ].join(" ")}
             loading="lazy"
