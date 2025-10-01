@@ -7,7 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { BarChart3, Droplets, Globe, GraduationCap, Newspaper, Phone, Shield, Users } from 'lucide-react'
 import Link from 'next/link'
 import Image from 'next/image'
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import ChatbotOverlay from "@/components/chatbot-overlay"
 
 const items = [
@@ -71,6 +71,30 @@ const HomePage = () => {
         { id: 'turbidity', label: 'Turbidity', value: '15 NTU' },
         { id: 'tds', label: 'TDS Level', value: '120 ppm' }
     ]
+
+    // Wake up servers in background when component mounts
+    useEffect(() => {
+        const serversToWakeUp = [
+            'https://spark-8cmm.onrender.com/docs',
+            'https://sihsparkchatbot.onrender.com/',
+            'https://waterborne-risk-api-osl1.onrender.com/docs',
+            'https://sihspark-g02b.onrender.com/',
+            'https://sihspark.onrender.com/health'
+        ];
+
+        // Make background requests to wake up the servers
+        serversToWakeUp.forEach(async (url) => {
+            try {
+                await fetch(url, { 
+                    method: 'GET',
+                    mode: 'no-cors' // Prevents CORS issues for external requests
+                });
+                console.log(`Server wake-up request sent to: ${url}`);
+            } catch (error) {
+                console.log(`Wake-up request to ${url} completed (expected for no-cors mode)`);
+            }
+        });
+    }, []); // Empty dependency array means this runs once on mount
     return (
         <>
             <Navbar overlay={true} />
